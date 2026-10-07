@@ -17,7 +17,9 @@ export class MongoRelayStore implements RelayStore {
 
   async ensureIndexes() {
     // Replace the phase-3 index: pending rows are now also filtered by backoff deadline and failure flag.
-    const names = (await this.outbox.indexes()).map((i) => i.name);
+    // On a brand-new database the collection does not exist yet and listIndexes fails with NamespaceNotFound (26);
+    // createIndexes below creates it.
+    const names = (await this.outbox.indexes().catch((e: { code?: number }) => { if (e?.code === 26) return []; throw e; })).map((i) => i.name);
     if (names.includes('relay_pending')) await this.outbox.dropIndex('relay_pending');
     await this.outbox.createIndexes([
       { key: { publishedAt: 1, failedAt: 1, _id: 1 }, name: 'relay_pending_v2' },
