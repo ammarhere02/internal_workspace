@@ -1,0 +1,98 @@
+<%- include('../partials/top') %>
+<div id="board-page" data-project-id="<%= projectId %>">
+  <!-- Section 1: project header -->
+  <div class="card card-outline card-primary board-header mb-3">
+    <div class="card-body d-flex flex-wrap align-items-center gap-3">
+      <div class="flex-grow-1">
+        <div class="d-flex align-items-center gap-2 flex-wrap"><h2 class="h4 mb-0" id="project-heading">Loading…</h2><span id="project-status"></span><span class="src-tag src-auth" title="Board, columns and cards are read from the Management service">authoritative</span></div>
+        <dl class="board-meta mb-0 mt-2" id="project-meta"></dl>
+      </div>
+      <div class="d-flex flex-wrap gap-2 align-items-center board-actions">
+        <label class="visually-hidden" for="board-switcher">Switch board</label>
+        <select class="form-select" id="board-switcher" style="width: 16rem; max-width: 100%" title="Switch to another project's board"><option>…</option></select>
+        <a class="btn btn-outline-secondary" id="edit-project-btn" href="#" data-admin-only><i class="bi bi-pencil"></i> Project</a>
+        <button class="btn btn-outline-secondary" type="button" id="columns-btn" data-admin-only><i class="bi bi-layout-three-columns"></i> Columns</button>
+        <button class="btn btn-primary" type="button" id="new-item-btn"><i class="bi bi-plus-lg"></i> New item</button>
+      </div>
+    </div>
+  </div>
+  <!-- Section 2: filters -->
+  <form class="card board-filters mb-3" id="filters" role="search" aria-label="Filter cards">
+    <div class="card-body d-flex flex-wrap gap-3 align-items-end">
+      <div class="flex-grow-1" style="min-width: 14rem"><label class="form-label" for="f-q"><i class="bi bi-search"></i> Search</label><input class="form-control" id="f-q" name="q" placeholder="Key, title or label"></div>
+      <div><label class="form-label" for="f-assignee">Assignee</label><select class="form-select" id="f-assignee" name="assigneeId"><option value="">All</option><option value="unassigned">Unassigned</option></select></div>
+      <div><label class="form-label" for="f-priority">Priority</label><select class="form-select" id="f-priority" name="priority"><option value="">All</option><option>CRITICAL</option><option>HIGH</option><option>MEDIUM</option><option>LOW</option></select></div>
+      <div><label class="form-label" for="f-type">Type</label><select class="form-select" id="f-type" name="type"><option value="">All</option><option>STORY</option><option>TASK</option><option>BUG</option><option>EPIC</option></select></div>
+      <div><label class="form-label" for="f-label">Label</label><input class="form-control" id="f-label" name="label" list="label-list" style="width: 10rem"><datalist id="label-list"></datalist></div>
+      <button class="btn btn-outline-secondary" type="reset"><i class="bi bi-x-lg"></i> Clear</button>
+      <span class="text-secondary ms-auto" id="filter-summary"></span>
+    </div>
+  </form>
+  <!-- Section 3: the board -->
+  <div class="section-heading d-flex align-items-center gap-2 mb-2">
+    <h3 class="h5 mb-0"><i class="bi bi-kanban text-primary"></i> Kanban Board</h3>
+    <button class="btn btn-link btn-sm text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#kbd-help" aria-expanded="false" aria-controls="kbd-help"><i class="bi bi-keyboard"></i> Keyboard &amp; rules</button>
+  </div>
+  <div class="collapse mb-2" id="kbd-help"><div class="alert alert-light border small mb-0">Focus a card: <kbd>Enter</kbd> opens it, <kbd>M</kbd> opens the move dialog, <kbd>Alt</kbd>+<kbd>←</kbd>/<kbd>→</kbd> moves it between columns, <kbd>Alt</kbd>+<kbd>↑</kbd>/<kbd>↓</kbd> reorders. Drag and drop works too. Every move sends the card's version; a conflict refreshes the board and explains what happened. WIP limits only warn.</div></div>
+  <div class="kanban" id="kanban" role="list" aria-label="Kanban board"></div>
+</div>
+
+<!-- Work-item drawer -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="item-drawer" aria-labelledby="drawer-title" style="width: min(34rem, 100vw)">
+  <div class="offcanvas-header border-bottom">
+    <h2 class="offcanvas-title h5" id="drawer-title">Work item</h2>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <form class="offcanvas-body" id="item-form" novalidate>
+    <dl class="row small mb-2" id="item-readonly">
+      <dt class="col-4">Issue key</dt><dd class="col-8 font-monospace" id="i-key">—</dd>
+      <dt class="col-4">Version</dt><dd class="col-8" id="i-version">—</dd>
+      <dt class="col-4">Reporter</dt><dd class="col-8" id="i-reporter">—</dd>
+      <dt class="col-4">Column</dt><dd class="col-8" id="i-column">—</dd>
+    </dl>
+    <div class="mb-2"><label class="form-label" for="i-title">Title</label><input class="form-control" id="i-title" name="title" required maxlength="200"></div>
+    <div class="row g-2">
+      <div class="col-6"><label class="form-label" for="i-type">Type</label><select class="form-select" id="i-type" name="type"><option>STORY</option><option selected>TASK</option><option>BUG</option><option>EPIC</option></select></div>
+      <div class="col-6"><label class="form-label" for="i-priority">Priority</label><select class="form-select" id="i-priority" name="priority"><option>LOW</option><option selected>MEDIUM</option><option>HIGH</option><option>CRITICAL</option></select></div>
+      <div class="col-6"><label class="form-label" for="i-assignee">Assignee <small class="text-secondary">(team members only)</small></label><select class="form-select" id="i-assignee" name="assigneeId"><option value="">Unassigned</option></select></div>
+      <div class="col-6"><label class="form-label" for="i-due">Due date</label><input class="form-control" type="date" id="i-due" name="dueDate"></div>
+      <div class="col-12" id="i-column-wrap"><label class="form-label" for="i-column-select">Column</label><select class="form-select" id="i-column-select" name="columnId"></select></div>
+    </div>
+    <div class="mt-2"><label class="form-label" for="i-labels">Labels <small class="text-secondary">(comma-separated lower-case slugs)</small></label><input class="form-control" id="i-labels" name="labels" pattern="\s*([a-z0-9][a-z0-9\-]{0,29}\s*(,\s*[a-z0-9][a-z0-9\-]{0,29}\s*)*)?"></div>
+    <div class="mt-2"><label class="form-label" for="i-desc">Description <small class="text-secondary">(plain text)</small></label><textarea class="form-control" id="i-desc" name="description" rows="4" maxlength="5000"></textarea></div>
+    <div class="mt-2"><label class="form-label" for="i-notes">Acceptance notes</label><textarea class="form-control" id="i-notes" name="acceptanceNotes" rows="3" maxlength="5000"></textarea></div>
+    <div class="d-flex gap-2 mt-3">
+      <button class="btn btn-primary" type="submit" id="i-save">Save</button>
+      <button class="btn btn-outline-secondary" type="button" id="i-move" hidden><i class="bi bi-arrows-move"></i> Move…</button>
+      <button class="btn btn-outline-danger ms-auto" type="button" id="i-archive" hidden><i class="bi bi-archive"></i> Archive</button>
+    </div>
+  </form>
+</div>
+
+<!-- Move dialog (non-drag action) -->
+<div class="modal" tabindex="-1" id="move-modal" aria-labelledby="move-title">
+  <div class="modal-dialog"><form class="modal-content" id="move-form">
+    <div class="modal-header"><h2 class="modal-title h5" id="move-title">Move card</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+    <div class="modal-body">
+      <p class="mb-2" id="move-what"></p>
+      <div class="mb-2"><label class="form-label" for="move-column">Column</label><select class="form-select" id="move-column" name="toColumnId"></select></div>
+      <div><label class="form-label" for="move-position">Position</label><select class="form-select" id="move-position" name="position"></select></div>
+    </div>
+    <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Move</button></div>
+  </form></div>
+</div>
+
+<!-- Column configuration -->
+<div class="modal" tabindex="-1" id="columns-modal" aria-labelledby="columns-title">
+  <div class="modal-dialog modal-lg"><form class="modal-content" id="columns-form">
+    <div class="modal-header"><h2 class="modal-title h5" id="columns-title">Board columns</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+    <div class="modal-body">
+      <p class="small text-secondary">Order is the list order. A WIP limit only warns; it never blocks a move. Removing a column that still holds cards is rejected.</p>
+      <ol class="list-group list-group-numbered" id="columns-list"></ol>
+      <button class="btn btn-sm btn-outline-secondary mt-2" type="button" id="add-column"><i class="bi bi-plus-lg"></i> Add column</button>
+    </div>
+    <div class="modal-footer"><span class="small text-secondary me-auto" id="columns-version"></span><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Save columns</button></div>
+  </form></div>
+</div>
+
+<%- include('../partials/bottom', { script: 'board.js' }) %>

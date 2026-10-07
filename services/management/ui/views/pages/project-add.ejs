@@ -1,0 +1,56 @@
+<%- include('../partials/top') %>
+<form id="create-project" novalidate>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card card-primary">
+        <div class="card-header"><h3 class="card-title">General</h3><div class="card-tools"><button type="button" class="btn btn-tool" data-lte-toggle="card-collapse" title="Collapse"><i class="bi bi-dash-lg"></i></button></div></div>
+        <div class="card-body">
+          <div class="mb-3"><label class="form-label" for="p-key">Project Key</label><input type="text" id="p-key" name="projectKey" class="form-control text-uppercase" required pattern="[A-Z][A-Z0-9]{1,9}" maxlength="10" placeholder="PAY"><div class="form-text">2–10 upper-case letters/digits, unique in the workspace; issue keys become PAY-1, PAY-2…</div></div>
+          <div class="mb-3"><label class="form-label" for="p-name">Project Name</label><input type="text" id="p-name" name="name" class="form-control" required minlength="2" maxlength="120"></div>
+          <div class="mb-3"><label class="form-label" for="p-desc">Project Description</label><textarea id="p-desc" name="description" class="form-control" rows="4" maxlength="2000"></textarea></div>
+          <div class="mb-3"><label class="form-label" for="p-status">Status</label><select id="p-status" name="status" class="form-select"><option>PLANNED</option><option>ACTIVE</option><option>ON_HOLD</option><option>COMPLETED</option></select></div>
+          <div class="row g-3">
+            <div class="col-6"><label class="form-label" for="p-start">Start date</label><input type="date" id="p-start" name="startDate" class="form-control"></div>
+            <div class="col-6"><label class="form-label" for="p-target">Target date</label><input type="date" id="p-target" name="targetDate" class="form-control"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card card-info">
+        <div class="card-header"><h3 class="card-title">Team and people</h3></div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label" for="p-team">Owning Team</label>
+            <select id="p-team" name="teamId" class="form-select" required></select>
+            <div class="form-text">Pick an existing team or create one right here. The project's cards can only be assigned to this team's members.</div>
+          </div>
+          <div id="new-team" class="border rounded p-3 mb-3 bg-body-tertiary" hidden>
+            <div class="row g-2">
+              <div class="col-7"><label class="form-label" for="nt-name">New team name</label><input type="text" id="nt-name" class="form-control" minlength="2" maxlength="80"></div>
+              <div class="col-5"><label class="form-label" for="nt-code">Code</label><input type="text" id="nt-code" class="form-control text-uppercase" pattern="[A-Z][A-Z0-9]{1,9}" maxlength="10" placeholder="PAYT"></div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Team members <small class="text-secondary fw-normal">(employees from the workspace)</small></label>
+            <div class="people-list" id="people" role="group" aria-label="Team members"><div class="text-secondary small p-2">Loading…</div></div>
+            <div class="form-text">Ticked people are added to the team when you create the project. People already in the team are locked.</div>
+          </div>
+          <div class="mb-0">
+            <label class="form-label" for="p-owner">Project Leader</label>
+            <select id="p-owner" name="ownerId" class="form-select" required></select>
+            <div class="form-text">Chosen from the ticked members (the server enforces that the leader belongs to the team).</div>
+          </div>
+        </div>
+      </div>
+      <div class="alert alert-light border small">Board: a Kanban board with <b>Backlog, To Do, In Progress, Review, Done</b> is created with the project; change columns later from the board.</div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <a href="/projects" class="btn btn-secondary">Cancel</a>
+      <button type="submit" class="btn btn-success float-end">Create new Project</button>
+    </div>
+  </div>
+</form>
+<%- include('../partials/bottom', { script: 'project-add.js' }) %>

@@ -1,0 +1,42 @@
+# Local runtime: NATS with JetStream (file storage, persistent volume) plus both services.
+# Application data lives in MongoDB Atlas; nothing here substitutes a local Mongo.
+services:
+  nats:
+    image: nats:2.15
+    command: ["--jetstream", "--store_dir", "/data", "--http_port", "8222", "--name", "tm-nats"]
+    ports:
+      - "4222:4222"   # client connections
+      - "8222:8222"   # monitoring (http://localhost:8222/jsz)
+    volumes:
+      - nats-data:/data
+    # The nats image has no shell/wget, so no container healthcheck; services use restart: on-failure
+    # and reconnect forever once the broker is up.
+
+  management:
+    build:
+      context: .
+      dockerfile: services/management/Dockerfile
+    env_file: ./services/management/.env
+    environment:
+      NATS_URL: nats://nats:4222
+      PORT: "3100"
+    ports:
+      - "3100:3100"
+    restart: on-failure
+    depends_on: [nats]
+
+  insights:
+    build:
+      context: .
+      dockerfile: services/insights/Dockerfile
+    env_file: ./services/insights/.env
+    environment:
+      NATS_URL: nats://nats:4222
+      HEALTH_PORT: "8001"
+    ports:
+      - "8001:8001"
+    restart: on-failure
+    depends_on: [nats]
+
+volumes:
+  nats-data:

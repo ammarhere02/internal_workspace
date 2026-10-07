@@ -1,0 +1,25 @@
+<%- include('../partials/top') %>
+<div id="insights-page" data-project-id="<%= projectId %>">
+  <%- include('../partials/freshness') %>
+  <div id="insights-notice" class="mb-3" hidden></div>
+  <div class="row g-3">
+    <div class="col-lg-7">
+      <div class="card card-outline card-info h-100">
+        <div class="card-header"><h3 class="card-title">Workload by assignee <span class="src-tag src-proj" title="Built asynchronously from events by the Python service: may lag">projection</span></h3></div>
+        <div class="card-body p-0 table-responsive"><table class="table table-sm mb-0 align-middle"><thead id="assignee-head"></thead><tbody id="assignee-rows"></tbody></table></div>
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="card card-info mb-3">
+        <div class="card-header"><h3 class="card-title">By column (status)</h3></div>
+        <ul class="list-group list-group-flush" id="by-column"></ul>
+      </div>
+      <div class="card card-secondary">
+        <div class="card-header"><h3 class="card-title">By priority</h3></div>
+        <ul class="list-group list-group-flush" id="by-priority"></ul>
+      </div>
+    </div>
+  </div>
+  <p class="small text-secondary mt-3">Counts include only active (non-archived) items and are derived from events. Compare with the authoritative board: <a id="board-link" href="#">open board</a>.</p>
+</div>
+<%- include('../partials/bottom', { script: 'insights.js' }) %>

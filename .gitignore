@@ -1,0 +1,26 @@
+# secrets
+.env
+.env.*
+!.env.example
+*Credentials*.env
+# node
+node_modules/
+dist/
+coverage/
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+# misc
+.DS_Store
+nats-data/
+secrets/
+# build artifacts
+*.tsbuildinfo
+# development & reference material (not part of the deployable app)
+docs/
+plan.md
+phases.md
+scripts/
+services/management/scripts/

@@ -1,0 +1,26 @@
+<%- include('../partials/top') %>
+<div class="row g-3" id="stat-cards">
+  <% for (const [id, label, icon, color] of [['teams','Teams','bi-people','primary'],['activeProjects','Active projects','bi-folder2-open','success'],['openItems','Open work items','bi-card-checklist','warning'],['overdueItems','Overdue items','bi-alarm','danger']]) { %>
+  <div class="col-6 col-lg-3">
+    <div class="small-box text-bg-<%= color %>">
+      <div class="inner"><h3 id="stat-<%= id %>">…</h3><p><%= label %></p></div>
+      <i class="small-box-icon bi <%= icon %>" aria-hidden="true"></i>
+      <span class="small-box-footer">authoritative count</span>
+    </div>
+  </div>
+  <% } %>
+</div>
+<div class="card card-outline card-info mt-3">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h3 class="card-title">Projection freshness <span class="src-tag src-proj" title="Built asynchronously from events by the Python service: may lag">projection</span></h3>
+    <button class="btn btn-sm btn-outline-secondary" id="refresh-freshness" type="button"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+  </div>
+  <div class="card-body p-0 table-responsive">
+    <table class="table table-sm table-striped mb-0">
+      <thead><tr><th>Project</th><th>Status</th><th>Projection</th><th>Last folded event</th><th>Consumer last processed</th><th>Detail</th></tr></thead>
+      <tbody id="freshness-rows"><tr><td colspan="6" class="text-secondary">Loading…</td></tr></tbody>
+    </table>
+  </div>
+  <div class="card-footer small text-secondary">Freshness comes from the Python service's reply metadata, not from whether the query succeeded. <em>pending</em> is normal for a few seconds after a change; <em>stale</em> means the consumer is behind for more than 30 s; <em>unavailable</em> means the query itself failed.</div>
+</div>
+<%- include('../partials/bottom', { script: 'dashboard.js' }) %>

@@ -1,0 +1,19 @@
+{
+  "name": "team-management-platform",
+  "private": true,
+  "description": "Team Management event-driven microservices assignment: NestJS + Python + NATS JetStream + MongoDB Atlas + AdminLTE",
+  "scripts": {
+    "nats:up": "docker compose up -d nats",
+    "nats:down": "docker compose down",
+    "mgmt:build": "npm --prefix services/management run build",
+    "mgmt:dev": "npm --prefix services/management run start:dev",
+    "mgmt:test": "npm --prefix services/management test",
+    "mgmt:test:e2e": "npm --prefix services/management run test:e2e",
+    "insights:dev": "cd services/insights && .venv/bin/python -m app.main",
+    "insights:test": "cd services/insights && .venv/bin/python -m pytest -q",
+    "test:all": "npm run mgmt:test && npm run insights:test"
+  },
+  "dependencies": {
+    "passport-google-oauth20": "^2.0.0"
+  }
+}

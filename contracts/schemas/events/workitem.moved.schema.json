@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://teammgmt.local/contracts/events/workitem.moved.schema.json",
+  "title": "Payload for tm.v1.workitem.moved (schemaVersion 1)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "item",
+    "fromColumnId",
+    "toColumnId"
+  ],
+  "properties": {
+    "item": {
+      "$ref": "https://teammgmt.local/contracts/events/common.schema.json#/$defs/workItemState"
+    },
+    "fromColumnId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "toColumnId": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

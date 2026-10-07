@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://teammgmt.local/contracts/queries/project_insights.response.schema.json",
+  "title": "tm.query.v1.project_insights response",
+  "type": "object", "additionalProperties": false,
+  "required": ["status", "projectId", "correlationId", "freshness"],
+  "properties": {
+    "status": { "type": "string", "enum": ["ready", "not_ready", "error"], "description": "not_ready: no projection exists yet for this project (events not consumed). error: request invalid or projection store unavailable." },
+    "projectId": { "type": "string" },
+    "correlationId": { "type": "string" },
+    "freshness": {
+      "type": "object", "additionalProperties": false,
+      "required": ["lastProcessedAt", "lastStreamSeq", "lastEventOccurredAt", "processingAgeMs"],
+      "properties": {
+        "lastProcessedAt": { "type": ["string", "null"], "format": "date-time" },
+        "lastStreamSeq": { "type": ["integer", "null"] },
+        "lastEventOccurredAt": { "type": ["string", "null"], "format": "date-time", "description": "occurredAt of the newest event folded into THIS project's projection" },
+        "processingAgeMs": { "type": ["integer", "null"] }
+      }
+    },
+    "workload": {
+      "type": "object", "additionalProperties": false,
+      "required": ["totalActive", "byColumn", "byPriority", "byAssignee"],
+      "properties": {
+        "totalActive": { "type": "integer", "minimum": 0 },
+        "byColumn": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 } },
+        "byPriority": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 } },
+        "byAssignee": {
+          "type": "array",
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["assigneeId", "total", "byColumn"],
+            "properties": {
+              "assigneeId": { "type": ["string", "null"], "description": "null = unassigned" },
+              "total": { "type": "integer", "minimum": 0 },
+              "byColumn": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 } }
+            }
+          }
+        }
+      }
+    },
+    "error": { "type": "object", "required": ["code", "message"], "properties": { "code": { "type": "string" }, "message": { "type": "string" } } }
+  },
+  "allOf": [
+    { "if": { "properties": { "status": { "const": "ready" } } }, "then": { "required": ["workload"] } },
+    { "if": { "properties": { "status": { "const": "error" } } }, "then": { "required": ["error"] } }
+  ]
+}

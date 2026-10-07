@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://teammgmt.local/contracts/events/workitem.archived.schema.json",
+  "title": "Payload for tm.v1.workitem.archived (schemaVersion 1)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "item"
+  ],
+  "properties": {
+    "item": {
+      "$ref": "https://teammgmt.local/contracts/events/common.schema.json#/$defs/workItemState"
+    }
+  }
+}

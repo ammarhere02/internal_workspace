@@ -1,0 +1,42 @@
+<%- include('../partials/top') %>
+<form id="project-form" data-project-id="<%= projectId %>" novalidate>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card card-primary">
+        <div class="card-header"><h3 class="card-title">General <span class="src-tag src-auth" title="Read from the Management service (NestJS): authoritative">authoritative</span></h3><div class="card-tools"><button type="button" class="btn btn-tool" data-lte-toggle="card-collapse" title="Collapse"><i class="bi bi-dash-lg"></i></button></div></div>
+        <div class="card-body">
+          <div class="mb-3"><label class="form-label fw-bold" for="pe-key">Project Key</label><input type="text" id="pe-key" class="form-control" readonly><div class="form-text">Immutable: issue keys are derived from it.</div></div>
+          <div class="mb-3"><label class="form-label fw-bold" for="pe-name">Project Name</label><input type="text" id="pe-name" name="name" class="form-control" required minlength="2" maxlength="120"></div>
+          <div class="mb-3"><label class="form-label fw-bold" for="pe-desc">Project Description</label><textarea id="pe-desc" name="description" class="form-control" rows="4" maxlength="2000"></textarea></div>
+          <div class="mb-3"><label class="form-label fw-bold" for="pe-status">Status</label><select id="pe-status" name="status" class="form-select"><option>PLANNED</option><option>ACTIVE</option><option>ON_HOLD</option><option>COMPLETED</option></select></div>
+          <div class="mb-0"><label class="form-label fw-bold" for="pe-owner">Project Leader</label><select id="pe-owner" name="ownerId" class="form-select"></select></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card card-secondary">
+        <div class="card-header"><h3 class="card-title">Schedule</h3><div class="card-tools"><button type="button" class="btn btn-tool" data-lte-toggle="card-collapse" title="Collapse"><i class="bi bi-dash-lg"></i></button></div></div>
+        <div class="card-body">
+          <div class="mb-3"><label class="form-label fw-bold" for="pe-start">Start date</label><input type="date" id="pe-start" name="startDate" class="form-control"></div>
+          <div class="mb-0"><label class="form-label fw-bold" for="pe-target">Target date</label><input type="date" id="pe-target" name="targetDate" class="form-control"></div>
+        </div>
+      </div>
+      <div class="card card-info">
+        <div class="card-header"><h3 class="card-title">Team</h3></div>
+        <div class="card-body p-0">
+          <div class="p-3 pb-0"><label class="form-label fw-bold" for="pe-team">Owning Team</label><select id="pe-team" name="teamId" class="form-select"></select><div class="form-text">Reassignment is rejected if the leader or any assignee is outside the new team.</div></div>
+          <table class="table table-sm mb-0 mt-2"><thead><tr><th class="ps-3">Member</th><th>Role</th></tr></thead><tbody id="pe-members"></tbody></table>
+        </div>
+      </div>
+      <dl class="row small text-secondary px-2"><dt class="col-4">Version</dt><dd class="col-8" id="pe-version">—</dd><dt class="col-4">Board</dt><dd class="col-8"><a id="pe-board-link" href="#">Open the Kanban board</a></dd></dl>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <a id="pe-cancel" href="/projects" class="btn btn-secondary">Cancel</a>
+      <button type="button" class="btn btn-danger ms-2" id="pe-archive">Archive project</button>
+      <button type="submit" class="btn btn-success float-end">Save Changes</button>
+    </div>
+  </div>
+</form>
+<%- include('../partials/bottom', { script: 'project-edit.js' }) %>

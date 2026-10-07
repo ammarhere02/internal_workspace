@@ -1,0 +1,21 @@
+{
+  "eventId": "01J9Q3Z8K2V4N6P8R0T2W4Y6A8",
+  "eventType": "workitem.moved",
+  "schemaVersion": 1,
+  "occurredAt": "2026-10-06T10:15:00Z",
+  "producer": "management-service",
+  "workspaceId": "ws_dev",
+  "aggregate": { "type": "WorkItem", "id": "wi_456", "version": 7 },
+  "correlationId": "req_abc",
+  "causationId": "cmd_xyz",
+  "actorId": "usr_789",
+  "payload": {
+    "fromColumnId": "todo",
+    "toColumnId": "doing",
+    "item": {
+      "itemId": "wi_456", "issueKey": "PAY-104", "projectId": "prj_1", "boardId": "brd_1", "columnId": "doing",
+      "rank": "m0", "type": "TASK", "priority": "HIGH", "title": "Add refund endpoint", "reporterId": "usr_1",
+      "assigneeId": "usr_789", "labels": ["backend"], "dueDate": "2026-10-20", "archived": false
+    }
+  }
+}

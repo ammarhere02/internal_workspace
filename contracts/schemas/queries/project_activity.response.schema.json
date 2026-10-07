@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://teammgmt.local/contracts/queries/project_activity.response.schema.json",
+  "title": "tm.query.v1.project_activity response",
+  "type": "object", "additionalProperties": false,
+  "required": ["status", "projectId", "correlationId", "freshness"],
+  "properties": {
+    "status": { "type": "string", "enum": ["ready", "not_ready", "error"] },
+    "projectId": { "type": "string" },
+    "correlationId": { "type": "string" },
+    "freshness": { "$ref": "https://teammgmt.local/contracts/queries/project_insights.response.schema.json#/properties/freshness" },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["eventId", "eventType", "actorId", "occurredAt", "summary", "aggregate", "item", "correlationId"],
+        "properties": {
+          "eventId": { "type": "string" },
+          "eventType": { "type": "string" },
+          "actorId": { "type": "string" },
+          "occurredAt": { "type": "string", "format": "date-time" },
+          "summary": { "type": "string" },
+          "aggregate": { "type": "object", "required": ["type", "id", "version"] },
+          "item": { "type": ["object", "null"], "properties": { "itemId": { "type": "string" }, "issueKey": { "type": "string" }, "title": { "type": "string" } } },
+          "correlationId": { "type": "string" }
+        }
+      }
+    },
+    "nextCursor": { "type": ["string", "null"] },
+    "error": { "type": "object", "required": ["code", "message"], "properties": { "code": { "type": "string" }, "message": { "type": "string" } } }
+  },
+  "allOf": [
+    { "if": { "properties": { "status": { "const": "ready" } } }, "then": { "required": ["items", "nextCursor"] } },
+    { "if": { "properties": { "status": { "const": "error" } } }, "then": { "required": ["error"] } }
+  ]
+}

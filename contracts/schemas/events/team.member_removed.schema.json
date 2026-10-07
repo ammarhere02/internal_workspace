@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://teammgmt.local/contracts/events/team.member_removed.schema.json",
+  "title": "Payload for tm.v1.team.member_removed (schemaVersion 1)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "teamId",
+    "teamName",
+    "userId",
+    "userName"
+  ],
+  "properties": {
+    "teamId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "teamName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "userId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "userName": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

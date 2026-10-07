@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://teammgmt.local/contracts/events/project.created.schema.json",
+  "title": "Payload for tm.v1.project.created (schemaVersion 1)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "projectId",
+    "projectKey",
+    "name",
+    "teamId",
+    "ownerId",
+    "status"
+  ],
+  "properties": {
+    "projectId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "projectKey": {
+      "type": "string",
+      "minLength": 1
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "teamId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ownerId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "$ref": "https://teammgmt.local/contracts/events/common.schema.json#/$defs/projectStatus"
+    }
+  }
+}

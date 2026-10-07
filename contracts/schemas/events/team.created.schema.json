@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://teammgmt.local/contracts/events/team.created.schema.json",
+  "title": "Payload for tm.v1.team.created (schemaVersion 1)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "teamId",
+    "name",
+    "code"
+  ],
+  "properties": {
+    "teamId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "code": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

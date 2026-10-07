@@ -1,0 +1,153 @@
+/*
+ * Project styles on top of AdminLTE 4, following the AdminLTE 3 demo pages (Kanban Board, Projects,
+ * Project Add/Edit/Detail). The few v3 classes that v4 dropped are re-created here.
+ */
+:root { --tm-primary: #007bff; --tm-font: "Source Sans 3", "Source Sans Pro", -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+body { font-family: var(--tm-font); font-size: 1rem; }
+.app-content-header h1 { font-size: 1.8rem; font-weight: 400; }
+.app-content-header { padding: 15px .5rem 0; }
+.app-content > .container-fluid { padding-bottom: 1.5rem; }
+.breadcrumb { font-size: .95rem; } .breadcrumb a { text-decoration: none; }
+.app-footer { font-size: .85rem; } .app-footer a { text-decoration: none; }
+
+/* cards (AdminLTE 3 look): soft shadow, light border, roomy headers */
+.card { box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2); border: 0; margin-bottom: 1rem; }
+.card > .card-header { background: transparent; border-bottom: 1px solid rgba(0,0,0,.125); padding: .75rem 1.25rem; }
+.card-title { font-size: 1.1rem; font-weight: 400; margin: 0; }
+.card-footer { background: rgba(0,0,0,.03); }
+.card.card-primary:not(.card-outline) > .card-header, .card.card-secondary:not(.card-outline) > .card-header, .card.card-info:not(.card-outline) > .card-header,
+.card.card-success:not(.card-outline) > .card-header, .card.card-warning:not(.card-outline) > .card-header, .card.card-danger:not(.card-outline) > .card-header, .card.card-dark:not(.card-outline) > .card-header { color: #fff; border-bottom: 0; }
+.card.card-primary:not(.card-outline) > .card-header { background: #007bff; }
+.card.card-secondary:not(.card-outline) > .card-header { background: #6c757d; }
+.card.card-info:not(.card-outline) > .card-header { background: #17a2b8; }
+.card.card-success:not(.card-outline) > .card-header { background: #28a745; }
+.card.card-warning:not(.card-outline) > .card-header { background: #ffc107; color: #1f2d3d; }
+.card.card-danger:not(.card-outline) > .card-header { background: #dc3545; }
+.card.card-dark:not(.card-outline) > .card-header { background: #343a40; }
+.card:not(.card-outline) > .card-header .btn-tool { color: rgba(255,255,255,.8); }
+.card.card-primary:not(.card-outline) > .card-header .src-tag, .card.card-info:not(.card-outline) > .card-header .src-tag, .card.card-secondary:not(.card-outline) > .card-header .src-tag { color: #fff; border-color: rgba(255,255,255,.6); background: transparent; }
+.card.card-primary.card-outline { border-top: 3px solid #007bff; } .card.card-secondary.card-outline { border-top: 3px solid #6c757d; }
+.card.card-info.card-outline { border-top: 3px solid #17a2b8; } .card.card-success.card-outline { border-top: 3px solid #28a745; }
+.card.card-warning.card-outline { border-top: 3px solid #ffc107; } .card.card-danger.card-outline { border-top: 3px solid #dc3545; }
+.form-label { font-weight: 600; margin-bottom: .35rem; }
+.form-text { color: #6c757d; }
+
+/* data-source tags: one quiet label per card instead of loud badges (PDF §13: label authoritative vs projection) */
+.src-tag { display: inline-block; font-size: .7rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: .05rem .45rem; border-radius: 1rem; border: 1px solid; vertical-align: middle; line-height: 1.3; }
+.src-auth { color: #1e7e34; border-color: #a3d9b1; background: #f1faf3; }
+.src-proj { color: #117a8b; border-color: #9fdbe6; background: #eefafc; }
+
+/* sidebar: brand + user panel (v3 .user-panel) */
+.app-sidebar { --lte-sidebar-bg: #343a40; }
+.sidebar-brand { border-bottom: 1px solid #4b545c; }
+.brand-link { font-size: 1.25rem; }
+.brand-link .brand-text b { font-weight: 600; }
+.brand-logo { display: inline-flex; width: 34px; height: 34px; border-radius: 50%; background: #fff; color: #343a40; align-items: center; justify-content: center; font-size: 1.1rem; margin-right: .6rem; opacity: .9; }
+.user-panel { border-bottom: 1px solid #4f5962; padding-left: .8rem; align-items: center; gap: .7rem; }
+.user-panel .info span.d-block { color: #c2c7d0; font-weight: 600; }
+.user-panel .info small { color: #869099; font-size: .75rem; display: block; }
+.sidebar-menu .nav-link { border-radius: .25rem; }
+.sidebar-menu .nav-link.active { background: var(--tm-primary); color: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+.sidebar-menu .nav-header { color: #869099; font-size: .75rem; letter-spacing: .05em; text-transform: uppercase; padding: 1rem 1rem .5rem; }
+
+/* avatars (the demo uses photos; we use initials) */
+.avatar { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: #6c757d; color: #fff; font-weight: 600; width: 2rem; height: 2rem; font-size: .8rem; letter-spacing: .02em; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,.2); flex: 0 0 auto; }
+.avatar-lg { width: 2.5rem; height: 2.5rem; font-size: .9rem; }
+.avatar-sm { width: 1.5rem; height: 1.5rem; font-size: .65rem; border-width: 1px; }
+.avatar-0 { background: #007bff; } .avatar-1 { background: #28a745; } .avatar-2 { background: #17a2b8; } .avatar-3 { background: #fd7e14; } .avatar-4 { background: #dc3545; } .avatar-5 { background: #6f42c1; }
+.table-avatar { width: 2.5rem; height: 2.5rem; font-size: .85rem; margin-right: -.5rem; }
+
+/* Projects table (v3 .table.projects) */
+.table.projects th { font-weight: 700; border-top: 0; }
+.table.projects td { vertical-align: middle; padding: .9rem .75rem; }
+.table.projects td > a:first-child { font-weight: 600; text-decoration: none; }
+.table.projects .list-inline { margin-bottom: 0; padding-left: .5rem; }
+.table.projects .project-actions .btn { margin-left: .2rem; }
+.progress.progress-sm { height: 8px; border-radius: .25rem; }
+.progress-bar.bg-green { background: #28a745; }
+
+/* Board page sections */
+.board-header .card-body { padding: 1rem 1.25rem; }
+.board-meta { display: flex; flex-wrap: wrap; gap: .5rem .75rem; }
+.meta-chip { display: inline-flex; align-items: center; gap: .35rem; background: #f4f6f9; border: 1px solid #e9ecef; border-radius: 1rem; padding: .15rem .7rem; font-size: .85rem; }
+.meta-chip i { color: #6c757d; } .meta-chip dt { font-weight: 600; color: #6c757d; display: inline; } .meta-chip dd { display: inline; margin: 0; }
+.board-filters .card-body { padding: .9rem 1.25rem; }
+.board-filters .form-label { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #6c757d; margin-bottom: .25rem; }
+.section-heading h3 { font-weight: 600; }
+
+/* Kanban (v3 .content-wrapper.kanban: horizontal row of 340px column cards) */
+.kanban { display: flex; align-items: stretch; overflow-x: auto; padding: .25rem .25rem 1rem; min-height: 60vh; gap: 1rem; }
+.kanban .card-row { width: 340px; flex: 0 0 340px; margin: 0; display: flex; flex-direction: column; background: #f4f6f9; }
+.kanban .card-row > .card-header { display: flex; align-items: center; justify-content: space-between; padding: .75rem 1rem; border-radius: .375rem .375rem 0 0; }
+.kanban .card-row > .card-header .card-title { font-weight: 600; }
+.kanban .card-row > .card-header .badge { background: rgba(255,255,255,.25) !important; color: #fff; font-weight: 600; }
+.kanban .card-row > .card-header .badge.text-danger { background: #fff !important; }
+.kanban .card-row > .card-body { padding: .75rem; overflow-y: auto; flex: 1; min-height: 8rem; }
+.kanban .card-row.drop-target > .card-body { outline: 2px dashed #007bff; outline-offset: -4px; border-radius: .25rem; background: #eaf3ff; }
+.kanban-card { cursor: grab; margin-bottom: .75rem; transition: box-shadow .15s, transform .15s; background: #fff; }
+.kanban-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.12); transform: translateY(-1px); }
+.kanban-card:last-child { margin-bottom: 0; }
+.kanban-card > .card-header { padding: .6rem .75rem; display: flex; align-items: center; border-bottom: 1px solid #f1f1f1; }
+.kanban-card > .card-header .card-title { font-size: 1rem; font-weight: 600; flex: 1; min-width: 0; word-break: break-word; }
+.kanban-card > .card-body { padding: .6rem .75rem .7rem; }
+.kanban-card .btn-tool { padding: .25rem .35rem; font-size: .85rem; }
+.kanban-card .btn-tool.btn-link { text-decoration: none; color: #6c757d; font-family: var(--bs-font-monospace); font-size: .78rem; padding-left: 0; padding-right: .25rem; }
+.kanban-card .card-hover-tool { opacity: 0; transition: opacity .15s; }
+.kanban-card:hover .card-hover-tool, .kanban-card:focus-within .card-hover-tool { opacity: 1; }
+.kanban-card:focus-visible { outline: 3px solid #007bff; outline-offset: 2px; }
+.kanban-card.pending { opacity: .55; cursor: progress; }
+.kanban-card.dragging { opacity: .4; }
+.kanban-card.drop-before { box-shadow: 0 -4px 0 0 #007bff; }
+.kanban-card.drop-after { box-shadow: 0 4px 0 0 #007bff; }
+.kanban-card .meta { display: flex; flex-wrap: wrap; gap: .35rem .7rem; align-items: center; font-size: .82rem; color: #6c757d; }
+.kanban-card .meta .badge { font-size: .68rem; }
+.kanban-card .labels { margin-top: .5rem; }
+.kanban-card .labels .badge { font-weight: 500; background: #e9ecef !important; color: #495057 !important; }
+.prio-CRITICAL { color: #dc3545; font-weight: 600; } .prio-HIGH { color: #fd7e14; font-weight: 600; } .prio-MEDIUM { color: #007bff; } .prio-LOW { color: #6c757d; }
+.wip-exceeded > .card-header { background: #dc3545 !important; }
+
+/* Project detail (v3 .post/.user-block/.info-box) */
+.info-box { box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2); border-radius: .375rem; }
+.info-box .info-box-number { font-weight: 700; font-size: 1.4rem; }
+.post { border-bottom: 1px solid #dee2e6; color: #555; margin-bottom: 15px; padding-bottom: 15px; }
+.post:last-of-type { border-bottom: 0; }
+.user-block { display: flex; gap: .6rem; align-items: center; margin-bottom: .5rem; }
+.user-block .username { font-weight: 600; display: block; color: #212529; }
+.user-block .description { color: #999; font-size: 13px; }
+.freshness { display: inline-flex; align-items: center; gap: .4rem; }
+
+/* dashboard small boxes */
+.small-box { border-radius: .375rem; box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2); }
+.small-box .inner h3 { font-size: 2.2rem; font-weight: 700; }
+.small-box .small-box-footer { font-size: .8rem; }
+
+@media (max-width: 576px) { .kanban .card-row { width: 85vw; flex-basis: 85vw; } .board-header .card-body { padding: .75rem; } }
+
+/* login / register */
+.login-box { width: 380px; } .login-card-body { padding: 1.5rem 1.5rem 1.25rem; }
+.login-logo a { color: #495057; text-decoration: none; } .login-logo b { font-weight: 700; }
+.login-page .btn { padding: .55rem 1rem; font-weight: 600; }
+
+/* Project Add: people picker */
+.people-list { border: 1px solid #ced4da; border-radius: .375rem; max-height: 17rem; overflow-y: auto; background: #fff; }
+.people-row { display: flex; align-items: center; gap: .6rem; padding: .5rem .75rem; margin: 0; cursor: pointer; border-bottom: 1px solid #f1f3f5; }
+.people-row:last-child { border-bottom: 0; }
+.people-row:hover { background: #f4f6f9; }
+.people-row .form-check-input { margin: 0; flex: 0 0 auto; }
+
+@media (max-width: 576px) { .board-actions { width: 100%; } .board-actions #board-switcher { width: 100% !important; } .board-actions .btn { flex: 1 1 auto; } }
+
+/* Project detail side column */
+.project-side .detail-grid { display: grid; grid-template-columns: 7.5rem 1fr; gap: .55rem 1rem; margin: 1rem 0 1.25rem; padding: .9rem 1rem; background: #f8f9fb; border: 1px solid #eef0f3; border-radius: .5rem; }
+.project-side .detail-grid dt { color: #6c757d; font-size: .75rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; align-self: center; }
+.project-side .detail-grid dd { margin: 0; font-weight: 600; word-break: break-word; }
+.side-heading { margin: 1.5rem 0 .6rem; padding-bottom: .4rem; border-bottom: 1px solid #e9ecef; color: #6c757d; font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.member-list li { padding: .4rem 0; border-bottom: 1px solid #f3f4f6; } .member-list li:last-child { border-bottom: 0; }
+.role-pill { font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #6c757d; background: #eef0f3; border-radius: 1rem; padding: .12rem .6rem; }
+.view-list .list-group-item { border-color: #eef0f3; text-decoration: none; }
+.view-list .list-group-item:hover { background: #f4f8ff; }
+/* soft light badges instead of heavy black text */
+.badge.text-bg-light { color: #495057 !important; background: #eef0f3 !important; font-weight: 600; }
+/* nothing floats: the footer stays in the page flow, scrollbars are slim */
+.app-footer { position: static !important; }
+* { scrollbar-width: thin; }

@@ -1,0 +1,30 @@
+<%- include('../partials/top') %>
+<div class="row g-3">
+  <div class="col-lg-4">
+    <div class="card card-primary">
+      <div class="card-header"><h3 class="card-title">Create team</h3></div>
+      <form class="card-body" id="create-team" novalidate>
+        <div class="mb-2"><label class="form-label" for="team-name">Name</label><input class="form-control" id="team-name" name="name" required minlength="2" maxlength="80"></div>
+        <div class="mb-2"><label class="form-label" for="team-code">Code <small class="text-secondary">2–10 upper-case letters/digits, unique</small></label><input class="form-control text-uppercase" id="team-code" name="code" required pattern="[A-Z][A-Z0-9]{1,9}" maxlength="10"></div>
+        <div class="mb-3"><label class="form-label" for="team-desc">Description</label><textarea class="form-control" id="team-desc" name="description" rows="2" maxlength="500"></textarea></div>
+        <button class="btn btn-success" type="submit"><i class="bi bi-plus-lg"></i> Create team</button>
+      </form>
+    </div>
+  </div>
+  <div class="col-lg-8">
+    <div class="card card-outline card-primary">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title">Teams <span class="src-tag src-auth" title="Read from the Management service (NestJS): authoritative">authoritative</span></h3>
+        <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" id="include-archived"><label class="form-check-label" for="include-archived">Show archived</label></div>
+      </div>
+      <div class="card-body p-0 table-responsive">
+        <table class="table table-hover mb-0">
+          <thead><tr><th>Code</th><th>Name</th><th>Description</th><th>Version</th><th>Status</th></tr></thead>
+          <tbody id="team-rows"></tbody>
+        </table>
+      </div>
+      <div class="card-footer"><button class="btn btn-sm btn-outline-secondary" id="more-teams" type="button" hidden>Load more</button></div>
+    </div>
+  </div>
+</div>
+<%- include('../partials/bottom', { script: 'teams.js' }) %>

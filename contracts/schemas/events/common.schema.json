@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://teammgmt.local/contracts/events/common.schema.json",
+  "$defs": {
+    "nullableString": { "type": ["string", "null"] },
+    "role": { "type": "string", "enum": ["OWNER", "LEAD", "MEMBER"] },
+    "itemType": { "type": "string", "enum": ["STORY", "TASK", "BUG", "EPIC"] },
+    "priority": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"] },
+    "projectStatus": { "type": "string", "enum": ["PLANNED", "ACTIVE", "ON_HOLD", "COMPLETED", "ARCHIVED"] },
+    "column": {
+      "type": "object", "additionalProperties": false,
+      "required": ["columnId", "name", "order"],
+      "properties": {
+        "columnId": { "type": "string" }, "name": { "type": "string" },
+        "order": { "type": "integer", "minimum": 0 }, "wipLimit": { "type": ["integer", "null"], "minimum": 1 }
+      }
+    },
+    "workItemState": {
+      "description": "Full post-event state of the work item. Every workitem.* event carries it so projections can be rebuilt as 'latest version wins' and out-of-order deltas are never guessed.",
+      "type": "object", "additionalProperties": false,
+      "required": ["itemId", "issueKey", "projectId", "boardId", "columnId", "rank", "type", "priority", "title", "reporterId", "assigneeId", "labels", "dueDate", "archived"],
+      "properties": {
+        "itemId": { "type": "string" }, "issueKey": { "type": "string", "pattern": "^[A-Z][A-Z0-9]{1,9}-[0-9]+$" },
+        "projectId": { "type": "string" }, "boardId": { "type": "string" }, "columnId": { "type": "string" },
+        "rank": { "type": "string" }, "type": { "$ref": "#/$defs/itemType" }, "priority": { "$ref": "#/$defs/priority" },
+        "title": { "type": "string" }, "reporterId": { "type": "string" }, "assigneeId": { "$ref": "#/$defs/nullableString" },
+        "labels": { "type": "array", "items": { "type": "string" } },
+        "dueDate": { "type": ["string", "null"], "format": "date" }, "archived": { "type": "boolean" }
+      }
+    }
+  }
+}

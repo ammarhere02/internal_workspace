@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://teammgmt.local/contracts/events/workitem.updated.schema.json",
+  "title": "Payload for tm.v1.workitem.updated (schemaVersion 1)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "item",
+    "changedFields"
+  ],
+  "properties": {
+    "item": {
+      "$ref": "https://teammgmt.local/contracts/events/common.schema.json#/$defs/workItemState"
+    },
+    "changedFields": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  }
+}

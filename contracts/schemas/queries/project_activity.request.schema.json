@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://teammgmt.local/contracts/queries/project_activity.request.schema.json",
+  "title": "tm.query.v1.project_activity request (Core NATS request/reply)",
+  "type": "object", "additionalProperties": false,
+  "required": ["workspaceId", "projectId", "correlationId"],
+  "properties": {
+    "workspaceId": { "type": "string", "minLength": 1 },
+    "projectId": { "type": "string", "minLength": 1 },
+    "correlationId": { "type": "string", "minLength": 1 },
+    "limit": { "type": "integer", "minimum": 1, "maximum": 100, "default": 25 },
+    "cursor": { "type": ["string", "null"], "description": "eventId of the last item of the previous page (keyset, newest first)" }
+  }
+}

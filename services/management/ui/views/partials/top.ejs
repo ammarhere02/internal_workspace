@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %> · Team Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;600;700&display=swap">
+  <link rel="stylesheet" href="/vendor/bootstrap-icons/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/vendor/adminlte/css/adminlte.min.css">
+  <link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+<div class="app-wrapper">
+  <!-- Navbar (AdminLTE: main-header navbar-white) -->
+  <nav class="app-header navbar navbar-expand bg-body">
+    <div class="container-fluid">
+      <ul class="navbar-nav">
+        <li class="nav-item"><a class="nav-link" data-lte-toggle="sidebar" href="#" role="button" aria-label="Toggle navigation"><i class="bi bi-list"></i></a></li>
+        <li class="nav-item d-none d-sm-inline-block"><a href="/" class="nav-link" id="nav-home">Home</a></li>
+      </ul>
+      <ul class="navbar-nav ms-auto align-items-center">
+        <li class="nav-item d-none d-md-block"><span class="nav-link text-secondary" id="workspace-label" aria-live="polite"></span></li>
+        <li class="nav-item">
+          <label class="visually-hidden" for="actor-select">Act as user</label>
+          <select id="actor-select" class="form-select form-select-sm" title="Development identity (x-dev-user). Workspace scope is fixed server-side."></select>
+        </li>
+        <li class="nav-item"><a class="nav-link" href="#" data-lte-toggle="fullscreen" role="button" aria-label="Toggle fullscreen"><i data-lte-icon="maximize" class="bi bi-arrows-fullscreen"></i><i data-lte-icon="minimize" class="bi bi-fullscreen-exit" style="display: none;"></i></a></li>
+      </ul>
+    </div>
+  </nav>
+  <!-- Sidebar (AdminLTE: main-sidebar sidebar-dark-primary) -->
+  <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+    <div class="sidebar-brand">
+      <a href="/" class="brand-link"><span class="brand-image brand-logo"><i class="bi bi-kanban-fill"></i></span><span class="brand-text fw-light">Team<b>Management</b></span></a>
+    </div>
+    <div class="sidebar-wrapper">
+      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+        <div class="image"><span class="avatar avatar-lg" id="actor-avatar" aria-hidden="true">?</span></div>
+        <div class="info"><span class="d-block" id="actor-name">Loading…</span><small class="text-secondary" id="actor-role"></small></div>
+      </div>
+      <nav class="mt-2">
+        <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="navigation" aria-label="Main navigation">
+          <li class="nav-item" data-admin-only><a href="/" class="nav-link<%= page === 'dashboard' ? ' active' : '' %>"><i class="nav-icon bi bi-speedometer2"></i><p>Dashboard</p></a></li>
+          <li class="nav-item"><a href="/my" class="nav-link<%= page === 'my' ? ' active' : '' %>"><i class="nav-icon bi bi-person-workspace"></i><p>My Work</p></a></li>
+          <li class="nav-item" data-admin-only><a href="/teams" class="nav-link<%= page === 'teams' ? ' active' : '' %>"><i class="nav-icon bi bi-people-fill"></i><p>Teams</p></a></li>
+          <li class="nav-item"><a href="/projects" class="nav-link<%= page === 'projects' ? ' active' : '' %>"><i class="nav-icon bi bi-folder-fill"></i><p>Projects</p></a></li>
+          <li class="nav-item"><a href="/board" class="nav-link<%= page === 'board' ? ' active' : '' %>"><i class="nav-icon bi bi-kanban-fill"></i><p>Kanban Board</p></a></li>
+          <li class="nav-item" data-admin-only><a href="/projects/new" class="nav-link<%= page === 'project-add' ? ' active' : '' %>"><i class="nav-icon bi bi-folder-plus"></i><p>Project Add</p></a></li>
+        </ul>
+        <ul class="nav sidebar-menu flex-column mt-2" id="project-nav" hidden aria-label="Current project"></ul>
+      </nav>
+    </div>
+  </aside>
+  <main class="app-main">
+    <div class="app-content-header">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-sm-6"><h1 class="mb-0" id="page-title"><%= title %></h1></div>
+          <div class="col-sm-6 d-none d-sm-block"><ol class="breadcrumb float-sm-end mb-0" id="breadcrumb"><li class="breadcrumb-item"><a href="/">Home</a></li><li class="breadcrumb-item active" aria-current="page"><%= title %></li></ol></div>
+        </div>
+      </div>
+    </div>
+    <div class="app-content">
+      <div class="container-fluid">
+        <div id="alerts" aria-live="assertive"></div>

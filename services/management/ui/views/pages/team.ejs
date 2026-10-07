@@ -1,0 +1,39 @@
+<%- include('../partials/top') %>
+<div class="row g-3" data-team-id="<%= teamId %>" id="team-page">
+  <div class="col-lg-4">
+    <div class="card card-primary">
+      <div class="card-header"><h3 class="card-title" id="team-title">General <span class="src-tag src-auth" title="Read from the Management service (NestJS): authoritative">authoritative</span></h3></div>
+      <form class="card-body" id="edit-team" novalidate>
+        <dl class="row small mb-2"><dt class="col-4">Code</dt><dd class="col-8 font-monospace" id="team-code"></dd><dt class="col-4">Version</dt><dd class="col-8" id="team-version"></dd><dt class="col-4">Status</dt><dd class="col-8" id="team-status"></dd></dl>
+        <div class="mb-2"><label class="form-label" for="team-name">Name</label><input class="form-control" id="team-name" name="name" required minlength="2" maxlength="80"></div>
+        <div class="mb-3"><label class="form-label" for="team-desc">Description</label><textarea class="form-control" id="team-desc" name="description" rows="2" maxlength="500"></textarea></div>
+        <div class="d-flex gap-2"><button class="btn btn-success" type="submit">Save Changes</button><button class="btn btn-outline-danger ms-auto" type="button" id="archive-team">Archive</button></div>
+      </form>
+    </div>
+    <div class="card card-secondary mt-3">
+      <div class="card-header"><h3 class="card-title">Add member</h3></div>
+      <form class="card-body" id="add-member" novalidate>
+        <div class="mb-2"><label class="form-label" for="member-user">User</label><select class="form-select" id="member-user" name="userId" required></select></div>
+        <div class="mb-3"><label class="form-label" for="member-role">Role</label><select class="form-select" id="member-role" name="role"><option>MEMBER</option><option>LEAD</option><option>OWNER</option></select></div>
+        <button class="btn btn-primary" type="submit"><i class="bi bi-person-plus"></i> Add</button>
+      </form>
+    </div>
+  </div>
+  <div class="col-lg-8">
+    <div class="card card-outline card-primary">
+      <div class="card-header"><h3 class="card-title">Members <span class="src-tag src-auth" title="Read from the Management service (NestJS): authoritative">authoritative</span></h3></div>
+      <div class="card-body p-0 table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+          <thead><tr><th>Name</th><th>User id</th><th>Role</th><th>Joined</th><th class="text-end">Actions</th></tr></thead>
+          <tbody id="member-rows"></tbody>
+        </table>
+      </div>
+      <div class="card-footer small text-secondary">Removing a member who still has active work items in this team's projects is rejected (422); reassign the items first.</div>
+    </div>
+    <div class="card card-outline card-info mt-3">
+      <div class="card-header"><h3 class="card-title">Projects owned by this team</h3></div>
+      <ul class="list-group list-group-flush" id="team-projects"></ul>
+    </div>
+  </div>
+</div>
+<%- include('../partials/bottom', { script: 'team.js' }) %>

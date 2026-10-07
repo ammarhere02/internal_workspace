@@ -1,0 +1,13 @@
+{
+  "eventId": "01J9Q3Z8K2V4N6P8R0T2W4Y6D3",
+  "eventType": "team.created",
+  "schemaVersion": 1,
+  "occurredAt": "2026-10-06T09:00:00Z",
+  "producer": "management-service",
+  "workspaceId": "ws_dev",
+  "aggregate": { "type": "Team", "id": "team_1", "version": 1 },
+  "correlationId": "req_001",
+  "causationId": "cmd_001",
+  "actorId": "usr_admin",
+  "payload": { "teamId": "team_1" }
+}

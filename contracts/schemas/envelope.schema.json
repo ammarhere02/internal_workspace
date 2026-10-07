@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://teammgmt.local/contracts/envelope.schema.json",
+  "title": "Canonical domain event envelope (tm.v1)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eventId", "eventType", "schemaVersion", "occurredAt", "producer", "workspaceId",
+    "aggregate", "correlationId", "causationId", "actorId", "payload"
+  ],
+  "properties": {
+    "eventId": { "type": "string", "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$", "description": "ULID; also sent as Nats-Msg-Id" },
+    "eventType": {
+      "type": "string",
+      "enum": [
+        "team.created", "team.updated", "team.archived",
+        "team.member_added", "team.member_removed", "team.member_role_changed",
+        "project.created", "project.updated", "project.team_assigned",
+        "board.created", "board.columns_updated",
+        "workitem.created", "workitem.assigned", "workitem.moved", "workitem.updated", "workitem.archived"
+      ]
+    },
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "producer": { "type": "string", "const": "management-service" },
+    "workspaceId": { "type": "string", "minLength": 1 },
+    "aggregate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "version"],
+      "properties": {
+        "type": { "type": "string", "enum": ["Team", "Project", "Board", "WorkItem"] },
+        "id": { "type": "string", "minLength": 1 },
+        "version": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "correlationId": { "type": "string", "minLength": 1 },
+    "causationId": { "type": "string", "minLength": 1 },
+    "actorId": { "type": "string", "minLength": 1 },
+    "payload": { "type": "object" }
+  }
+}

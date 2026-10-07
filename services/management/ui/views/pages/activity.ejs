@@ -1,0 +1,16 @@
+<%- include('../partials/top') %>
+<div id="activity-page" data-project-id="<%= projectId %>">
+  <%- include('../partials/freshness') %>
+  <div class="card card-outline card-info">
+    <div class="card-header"><h3 class="card-title">Activity feed <span class="src-tag src-proj" title="Built asynchronously from events by the Python service: may lag">projection</span> <small class="text-secondary fw-normal">newest first, built from events by the Python service</small></h3></div>
+    <div class="card-body p-0">
+      <div id="activity-notice" class="p-3" hidden></div>
+      <table class="table table-sm table-hover mb-0 align-middle">
+        <thead><tr><th>When</th><th>Who</th><th>What</th><th>Item</th><th class="d-none d-md-table-cell">Event</th></tr></thead>
+        <tbody id="activity-rows"></tbody>
+      </table>
+    </div>
+    <div class="card-footer"><button class="btn btn-sm btn-outline-secondary" id="more-activity" type="button" hidden>Load older</button></div>
+  </div>
+</div>
+<%- include('../partials/bottom', { script: 'activity.js' }) %>

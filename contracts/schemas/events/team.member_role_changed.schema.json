@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://teammgmt.local/contracts/events/team.member_role_changed.schema.json",
+  "title": "Payload for tm.v1.team.member_role_changed (schemaVersion 1)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "teamId",
+    "teamName",
+    "userId",
+    "userName",
+    "previousRole",
+    "role"
+  ],
+  "properties": {
+    "teamId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "teamName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "userId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "userName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "previousRole": {
+      "$ref": "https://teammgmt.local/contracts/events/common.schema.json#/$defs/role"
+    },
+    "role": {
+      "$ref": "https://teammgmt.local/contracts/events/common.schema.json#/$defs/role"
+    }
+  }
+}

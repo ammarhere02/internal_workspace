@@ -1,0 +1,49 @@
+<%- include('../partials/top') %>
+<div class="card" id="detail-page" data-project-id="<%= projectId %>">
+  <div class="card-header">
+    <h3 class="card-title" id="detail-title">Projects Detail</h3>
+    <div class="card-tools"><button type="button" class="btn btn-tool" data-lte-toggle="card-collapse" title="Collapse"><i class="bi bi-dash-lg"></i></button></div>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-12 col-md-12 col-lg-8 order-2 order-md-1">
+        <div class="row">
+          <div class="col-12 col-sm-4"><div class="info-box bg-light"><div class="info-box-content"><span class="info-box-text text-center text-muted">Open work items</span><span class="info-box-number text-center text-muted mb-0" id="ib-open">…</span></div></div></div>
+          <div class="col-12 col-sm-4"><div class="info-box bg-light"><div class="info-box-content"><span class="info-box-text text-center text-muted">Cards done</span><span class="info-box-number text-center text-muted mb-0" id="ib-done">…</span></div></div></div>
+          <div class="col-12 col-sm-4"><div class="info-box bg-light"><div class="info-box-content"><span class="info-box-text text-center text-muted">Days to target</span><span class="info-box-number text-center text-muted mb-0" id="ib-days">…</span></div></div></div>
+        </div>
+        <div class="row">
+          <div class="col-12">
+            <h4 class="d-flex align-items-center gap-2">Recent Activity <span class="src-tag src-proj" title="Built asynchronously from events by the Python service: may lag">projection</span> <span class="badge" id="fresh-badge">checking…</span> <button class="btn btn-sm btn-outline-secondary ms-auto" type="button" id="fresh-refresh"><i class="bi bi-arrow-clockwise"></i></button></h4>
+            <p class="small text-secondary mb-2"><span id="fresh-detail"></span> <span id="fresh-last-query"></span></p>
+            <div id="activity-posts"></div>
+            <a class="btn btn-sm btn-outline-secondary" id="activity-all" href="#">Full activity feed</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-12 col-lg-4 order-1 order-md-2">
+        <aside class="project-side">
+          <div class="d-flex align-items-start gap-2 mb-1"><h3 class="text-primary mb-0 flex-grow-1"><i class="bi bi-kanban-fill"></i> <span id="d-name">…</span></h3><span class="src-tag src-auth mt-2" title="Read from the Management service">authoritative</span></div>
+          <p class="text-muted" id="d-desc"></p>
+          <dl class="detail-grid">
+            <dt>Project key</dt><dd id="d-key"></dd>
+            <dt>Owning team</dt><dd id="d-team"></dd>
+            <dt>Leader</dt><dd id="d-owner"></dd>
+            <dt>Status</dt><dd id="d-status"></dd>
+            <dt>Schedule</dt><dd id="d-dates"></dd>
+            <dt>Version</dt><dd id="d-version"></dd>
+          </dl>
+          <h6 class="side-heading">Team members</h6>
+          <ul class="list-unstyled member-list" id="d-members"></ul>
+          <h6 class="side-heading">Project views</h6>
+          <div class="list-group view-list" id="d-links"></div>
+          <div class="d-grid gap-2 mt-4">
+            <a href="#" class="btn btn-primary" id="d-board-btn"><i class="bi bi-kanban"></i> Open board</a>
+            <a href="#" class="btn btn-outline-secondary" id="d-edit-btn" data-admin-only><i class="bi bi-pencil"></i> Edit project</a>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+</div>
+<%- include('../partials/bottom', { script: 'project-detail.js' }) %>

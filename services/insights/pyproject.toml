@@ -1,0 +1,4 @@
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+markers = ["integration: needs a real local NATS server (docker compose up nats)"]

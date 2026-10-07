@@ -1,0 +1,11 @@
+<%- include('../partials/auth-head') %>
+      <p class="login-box-msg">Register a new employee account</p>
+      <form id="register-form" novalidate>
+        <div class="input-group mb-3"><input type="text" class="form-control" name="name" placeholder="Full name" required minlength="2" maxlength="80" autocomplete="name"><div class="input-group-text"><span class="bi bi-person"></span></div></div>
+        <div class="input-group mb-3"><input type="email" class="form-control" name="email" placeholder="Email" required maxlength="254" autocomplete="username"><div class="input-group-text"><span class="bi bi-envelope"></span></div></div>
+        <div class="input-group mb-3"><input type="password" class="form-control" name="password" placeholder="Password (min 8 characters)" required minlength="8" maxlength="128" autocomplete="new-password"><div class="input-group-text"><span class="bi bi-lock"></span></div></div>
+        <div class="alert alert-danger py-2 small" id="register-error" hidden role="alert"></div>
+        <div class="d-grid mb-3"><button type="submit" class="btn btn-primary">Register</button></div>
+      </form>
+      <p class="mb-0 text-center"><a href="/login">I already have an account</a></p>
+<%- include('../partials/auth-foot') %>
