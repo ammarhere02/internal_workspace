@@ -1,0 +1,12 @@
+# Build context is the repo root (both service Dockerfiles COPY from it). Keep secrets and local artefacts out of images.
+.git
+**/node_modules
+**/.venv
+**/dist
+**/__pycache__
+**/.pytest_cache
+**/.env
+**/.env.*
+!**/.env.example
+secrets
+docs/screenshots

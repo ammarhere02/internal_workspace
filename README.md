@@ -123,6 +123,7 @@ Details, limits and rollback: `docs/replay.md`.
 - `docs/events.md` — event catalogue
 - `docs/verification-report.md` — commands run and results
 - `docs/assignment-checklist.md` — requirement tracker
+- `docs/deploy-railway.md` — deploying the three services (NATS, NestJS, Python) to Railway
 - `docs/auth.md` — Google sign-in (Passport), ADMIN/EMPLOYEE roles, redirection and scoping
 - `docs/ui.md` — AdminLTE UI: screens, Kanban rules, freshness states, a move through success/conflict/failure/delay
 - `docs/screenshots/phase6/` — headless-browser screenshots from the walkthrough

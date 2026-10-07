@@ -12,8 +12,5 @@
     "insights:dev": "cd services/insights && .venv/bin/python -m app.main",
     "insights:test": "cd services/insights && .venv/bin/python -m pytest -q",
     "test:all": "npm run mgmt:test && npm run insights:test"
-  },
-  "dependencies": {
-    "passport-google-oauth20": "^2.0.0"
   }
 }
