@@ -22,16 +22,34 @@ export const devUser = {
   set: (v) => { try { v ? localStorage.setItem(DEV_USER_KEY, v) : localStorage.removeItem(DEV_USER_KEY); } catch { /* storage blocked: header simply stays default */ } },
 };
 
+// ---- live updates: every successful write tells this tab and the others to refresh (see live.js) ----
+const channel = typeof BroadcastChannel === 'function' ? new BroadcastChannel('tm.data') : null;
+const changeListeners = new Set();
+export function onDataChanged(fn) { changeListeners.add(fn); }
+function dataChanged() {
+  for (const fn of changeListeners) fn();
+  channel?.postMessage('changed');
+}
+channel?.addEventListener('message', () => { for (const fn of changeListeners) fn(); });
+
+let passiveDepth = 0;
+/** Runs fn with every api() call inside it marked passive (background refresh). */
+export async function asPassive(fn) {
+  passiveDepth++;
+  try { return await fn(); } finally { passiveDepth--; }
+}
+
 /** opts.passive = true marks a background poll: the server validates the session but does NOT slide the idle window. */
 export async function api(method, path, body, opts = {}) {
   const headers = { accept: 'application/json' };
-  if (opts.passive) headers['x-session-passive'] = '1';
+  if (opts.passive ?? passiveDepth > 0) headers['x-session-passive'] = '1';
   if (body !== undefined) headers['content-type'] = 'application/json';
   const u = devUser.get();
   if (u) headers['x-dev-user'] = u;
   const res = await fetch(path, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) });
   const correlationId = res.headers.get('x-correlation-id') || '';
   noteSessionResponse(res); // re-arms the expiry timers from x-session-expires
+  if (res.ok && method !== 'GET') queueMicrotask(dataChanged);
   if (res.status === 204) return null;
   let json = null;
   try { json = await res.json(); } catch { json = null; }

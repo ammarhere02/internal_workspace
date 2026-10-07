@@ -57,7 +57,7 @@ export class IdentityMiddleware implements NestMiddleware {
         sess.authAt ??= now;
         sess.lastActiveAt ??= now;
         if (pastAbsoluteLimit(sess.authAt, now, policy) || idleExpired(sess.lastActiveAt, now, policy)) { sess.destroy(() => undefined); throw new DomainError(401, 'unauthenticated', 'the session has expired; please sign in again'); }
-        if (req.headers['x-session-passive'] !== '1') sess.lastActiveAt = now; // only real activity slides the idle window
+        if (req.headers['x-session-passive'] !== '1' && now - sess.lastActiveAt > touchEvery(policy)) sess.lastActiveAt = now; // only real activity slides the idle window; throttled so most requests skip the session-store write
         this.markSession(req, res, slideExpiry(sess.authAt, sess.lastActiveAt, policy));
       }
       if (!actor) {
@@ -86,7 +86,7 @@ export class PageAuthMiddleware implements NestMiddleware {
       const policy = policyFrom(this.config), now = Date.now();
       sess.authAt ??= now; sess.lastActiveAt ??= now;
       if (pastAbsoluteLimit(sess.authAt, now, policy) || idleExpired(sess.lastActiveAt, now, policy)) return sess.destroy(() => res.redirect('/login?error=session_expired'));
-      sess.lastActiveAt = now;
+      if (now - sess.lastActiveAt > touchEvery(policy)) sess.lastActiveAt = now;
     }
     const user = req.user ?? this.fromJwtCookie(req);
     if (!user) return res.redirect('/login');
@@ -101,4 +101,6 @@ export class PageAuthMiddleware implements NestMiddleware {
     return claims ? { role: claims.role } : null;
   }
 }
+/** Granularity of the idle window: rewriting the session on every request costs a database write each time. */
+const touchEvery = (p: { idleMs: number }) => Math.min(30_000, p.idleMs / 20); // at most 5% of the idle window
 const ADMIN_PAGES = [/^\/$/, /^\/teams/, /^\/projects\/new$/, /^\/projects\/[^/]+\/edit$/];

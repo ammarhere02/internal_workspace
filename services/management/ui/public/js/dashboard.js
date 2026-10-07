@@ -1,3 +1,4 @@
+import { live } from './live.js';
 import { api } from './api.js';
 import { $, h, clear, fmtDateTime, fmtAgo, explain, toast, withCid } from './dom.js';
 import { classify } from './freshness.js';
@@ -30,3 +31,4 @@ async function load() {
 }
 $('#refresh-freshness').addEventListener('click', load);
 load();
+live(load, { everyMs: 30_000 });

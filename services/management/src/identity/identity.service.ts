@@ -15,6 +15,9 @@ import { newId } from '../common/ids.js';
 export class IdentityService implements OnModuleInit {
   private readonly log = new Logger(IdentityService.name);
   private workspace!: WorkspaceDoc;
+  /** Every /api call needs the actor + their team ids; a short-lived cache saves 1–2 database round trips per request. */
+  private readonly userCache = new TtlCache<UserDoc | null>(CACHE_TTL_MS);
+  private readonly teamCache = new TtlCache<string[]>(CACHE_TTL_MS);
 
   constructor(private readonly mongo: MongoService, private readonly config: ConfigService<Env, true>) {}
 
@@ -65,7 +68,7 @@ export class IdentityService implements OnModuleInit {
   /** Dev identity: optional x-dev-user header picks a seeded user; default is the admin. Must belong to the workspace. */
   async resolveActor(devUser?: string): Promise<UserDoc> {
     const id = `${devUser || 'usr_admin'}_${this.workspace.slug}`;
-    const user = await this.users.findOne({ _id: id, workspaceId: this.workspace._id, active: true });
+    const user = await this.findActive(id);
     if (!user) throw new DomainError(401, 'unknown_actor', `no active user ${id} in this workspace`);
     return user;
   }
@@ -84,6 +87,7 @@ export class IdentityService implements OnModuleInit {
     if (existing) {
       if (!existing.active) throw new DomainError(403, 'user_inactive', 'this account has been deactivated in the workspace');
       await this.users.updateOne({ _id: existing._id }, { $set: { role, googleId: profile.id, lastLoginAt: now } });
+      this.userCache.delete(existing._id); // role may have changed with the allowlist
       return { ...existing, role, googleId: profile.id, lastLoginAt: now };
     }
     const user: UserDoc = { _id: newId('usr'), workspaceId: this.workspace._id, name: profile.name || emailNormalized, email: profile.email, emailNormalized, active: true, createdAt: now, role, googleId: profile.id, lastLoginAt: now };
@@ -114,12 +118,17 @@ export class IdentityService implements OnModuleInit {
 
   /** Session rehydration: the session stores only the user id; the record is re-read on every request. */
   async findActive(userId: string): Promise<UserDoc | null> {
-    return this.users.findOne({ _id: userId, workspaceId: this.workspace._id, active: true });
+    return this.userCache.get(userId, () => this.users.findOne({ _id: userId, workspaceId: this.workspace._id, active: true }));
   }
 
   /** Teams the user belongs to: the read scope of an EMPLOYEE. */
   async teamIdsOf(workspaceId: string, userId: string): Promise<string[]> {
-    return this.mongo.db.collection('team_memberships').find({ workspaceId, userId }, { projection: { teamId: 1 } }).map((m) => String(m.teamId)).toArray();
+    return this.teamCache.get(`${workspaceId}:${userId}`, () => this.mongo.db.collection('team_memberships').find({ workspaceId, userId }, { projection: { teamId: 1 } }).map((m) => String(m.teamId)).toArray());
+  }
+
+  /** Membership changed: the user's read scope must apply on their very next request. */
+  forgetTeams(workspaceId: string, userId: string) {
+    this.teamCache.delete(`${workspaceId}:${userId}`);
   }
 
   async listUsers(workspaceId: string): Promise<UserDoc[]> {
@@ -137,4 +146,22 @@ export class IdentityService implements OnModuleInit {
 export function roleForEmail(email: string, adminEmails: string): UserRole {
   const allow = adminEmails.split(',').map((e) => e.trim().toLowerCase()).filter(Boolean);
   return allow.includes(email.trim().toLowerCase()) ? 'ADMIN' : 'EMPLOYEE';
+}
+
+const CACHE_TTL_MS = 5_000;
+
+/** Tiny TTL cache that also shares an in-flight lookup between concurrent requests. */
+class TtlCache<T> {
+  private readonly entries = new Map<string, { at: number; value: Promise<T> }>();
+  constructor(private readonly ttlMs: number) {}
+  get(key: string, load: () => Promise<T>): Promise<T> {
+    const hit = this.entries.get(key), now = Date.now();
+    if (hit && now - hit.at < this.ttlMs) return hit.value;
+    if (this.entries.size > 1000) this.entries.clear();
+    const value = load();
+    this.entries.set(key, { at: now, value });
+    value.catch(() => this.entries.delete(key)); // never cache a failure
+    return value;
+  }
+  delete(key: string) { this.entries.delete(key); }
 }

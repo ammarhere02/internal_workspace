@@ -4,6 +4,7 @@ import { projectNav } from './shell.js';
 import { store } from './board-store.js';
 import { openDrawer } from './drawer.js';
 import { initConfig } from './board-config.js';
+import { live } from './live.js';
 
 store.projectId = $('#board-page').dataset.projectId;
 try { localStorage.setItem('tm.lastBoard', store.projectId); } catch { /* ignore */ }
@@ -234,3 +235,4 @@ store.onChange(() => { renderHeader(); renderFilterOptions(); renderBoard(); });
 $('#new-item-btn').addEventListener('click', () => openDrawer(null));
 initConfig();
 store.reload().catch((e) => { $('#project-heading').textContent = 'Project unavailable'; toast('danger', explain(e), withCid(e)); });
+live(() => store.reload(), { everyMs: 5_000, busy: () => Boolean(dragging) || !store.board || store.board.columns.some((c) => c.items.some((i) => i.pending)) }); // other people's moves show up within seconds

@@ -14,11 +14,14 @@ export const store = {
   listeners: new Set(),
   onChange(fn) { this.listeners.add(fn); },
   notify() { for (const fn of this.listeners) fn(); },
+  sig: null,
   async reload() {
     const pid = encodeURIComponent(this.projectId);
     const [project, board, users] = await Promise.all([api('GET', `/api/projects/${pid}`), api('GET', `/api/projects/${pid}/board`), userMap()]);
     const { items } = await api('GET', `/api/teams/${encodeURIComponent(project.teamId)}/members`);
-    Object.assign(this, { project, board, users, members: items });
+    const sig = JSON.stringify([project, board, items]);
+    if (sig === this.sig) return; // background refresh with no changes: keep the DOM (focus, scroll) as it is
+    Object.assign(this, { project, board, users, members: items, sig });
     this.notify();
   },
   column(id) { return this.board.columns.find((c) => c.columnId === id); },

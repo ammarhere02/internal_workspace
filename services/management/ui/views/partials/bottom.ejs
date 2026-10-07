@@ -8,7 +8,7 @@
 <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toasts"></div>
 <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="/vendor/adminlte/js/adminlte.min.js"></script>
-<script type="module" src="/assets/js/shell.js"></script>
-<% if (typeof script === 'string') { %><script type="module" src="/assets/js/<%= script %>"></script><% } %>
+<script type="module" src="<%= assets %>/js/shell.js"></script>
+<% if (typeof script === 'string') { %><script type="module" src="<%= assets %>/js/<%= script %>"></script><% } %>
 </body>
 </html>

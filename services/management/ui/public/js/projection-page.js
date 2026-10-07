@@ -2,6 +2,7 @@ import { api } from './api.js';
 import { $, h, fmtDateTime, explain } from './dom.js';
 import { projectNav } from './shell.js';
 import { classify, latestAuthoritative } from './freshness.js';
+import { live } from './live.js';
 
 /**
  * Shared driver for the two projection screens (activity, insights). It loads the authoritative project
@@ -19,7 +20,7 @@ export async function runProjectionPage({ projectId, active, query, render, poll
   let timer = null, lastGood = null;
 
   async function refresh(background = false) {
-    clearTimeout(timer);
+    clearTimeout(timer); timer = null;
     let reply = null, error = null;
     try { reply = await query({ passive: background }); lastGood = reply; $('#fresh-last-query').textContent = `last query ok ${new Date().toLocaleTimeString()}`; }
     catch (e) { error = { detail: `${explain(e)} ${e.correlationId ? `(correlation id ${e.correlationId})` : ''}` }; $('#fresh-last-query').textContent = `last query failed ${new Date().toLocaleTimeString()}`; }
@@ -34,6 +35,7 @@ export async function runProjectionPage({ projectId, active, query, render, poll
   }
   $('#fresh-refresh').addEventListener('click', () => refresh(false));
   await refresh(false);
+  live(async () => { if (!timer) await refresh(true); }, { everyMs: 15_000 }); // the pending/stale loop above has its own timer
   return { project, board };
 }
 

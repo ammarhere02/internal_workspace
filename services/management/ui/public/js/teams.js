@@ -1,3 +1,4 @@
+import { live } from './live.js';
 import { api } from './api.js';
 import { $, h, clear, submit, toast, explain, withCid } from './dom.js';
 
@@ -10,11 +11,12 @@ async function load(reset = true) {
 }
 async function loadPage(reset) {
   const rows = $('#team-rows');
-  if (reset) { clear(rows); cursor = null; }
+  if (reset) cursor = null;
   const q = new URLSearchParams({ limit: 25, includeArchived: $('#include-archived').checked });
   if (cursor) q.set('cursor', cursor);
   try {
     const page = await api('GET', `/api/teams?${q}`);
+    if (reset) clear(rows); // cleared only once the data is here, so a refresh never flashes an empty table
     for (const t of page.items) rows.append(h('tr', {},
       h('td', {}, h('a', { href: `/teams/${encodeURIComponent(t.id)}`, class: 'font-monospace', text: t.code })),
       h('td', { text: t.name }), h('td', { class: 'text-secondary small', text: t.description }), h('td', { text: t.version }),
@@ -34,3 +36,4 @@ $('#create-team').addEventListener('submit', async (ev) => {
   if (t) { form.reset(); location.href = `/teams/${encodeURIComponent(t.id)}`; }
 });
 load();
+live(() => { if (!cursor) return load(); }, { everyMs: 15_000 }); // only while the list fits one page: never drop rows the user loaded with "Load more"

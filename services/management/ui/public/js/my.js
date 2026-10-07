@@ -1,3 +1,4 @@
+import { live } from './live.js';
 import { api } from './api.js';
 import { $, h, clear, toast, explain, withCid, statusBadge } from './dom.js';
 
@@ -21,3 +22,4 @@ async function load() {
   if (!teams.length) ul.append(h('li', { class: 'list-group-item text-secondary', text: 'You are not a member of any team yet. Ask an administrator to add you.' }));
 }
 load().catch((e) => toast('danger', explain(e), withCid(e)));
+live(load, { everyMs: 15_000 });

@@ -1,7 +1,10 @@
 import type { NestExpressApplication } from '@nestjs/platform-express';
+import compression from 'compression';
 import express from 'express';
+import { createHash } from 'node:crypto';
+import { readdirSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { dirname } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 /**
@@ -35,10 +38,23 @@ export function configureWeb(app: NestExpressApplication) {
     res.setHeader('Referrer-Policy', 'same-origin');
     next();
   });
-  const serve = (dir: string, maxAge: string) => express.static(dir, { index: false, maxAge, etag: true });
-  app.use('/assets', serve(`${UI_DIR}public`, '0')); // our own scripts/styles: always revalidated (ETag), so a rebuild never runs stale JS against new pages
-  app.use('/vendor/adminlte', serve(`${pkgDir('admin-lte')}/dist`, '1d'));
-  app.use('/vendor/bootstrap', serve(`${pkgDir('bootstrap')}/dist`, '1d'));
-  app.use('/vendor/bootstrap-icons', serve(`${pkgDir('bootstrap-icons')}/font`, '1d'));
+  app.use(compression()); // gzip HTML, JSON and the large vendor CSS/JS
+  const serve = (dir: string, maxAge: string, immutable = false) => express.static(dir, { index: false, maxAge, etag: true, immutable });
+  // Pages load our scripts from /assets/v/<content hash>/: relative module imports stay inside that versioned path, so the
+  // browser caches the whole module graph for good (no per-file revalidation waterfall) and a new build gets new URLs.
+  const version = assetVersion(`${UI_DIR}public`);
+  app.setLocal('assets', `/assets/v/${version}`);
+  app.use(`/assets/v/${version}`, serve(`${UI_DIR}public`, '365d', true));
+  app.use('/assets', serve(`${UI_DIR}public`, '0')); // unversioned path: always revalidated (ETag)
+  app.use('/vendor/adminlte', serve(`${pkgDir('admin-lte')}/dist`, '7d'));
+  app.use('/vendor/bootstrap', serve(`${pkgDir('bootstrap')}/dist`, '7d'));
+  app.use('/vendor/bootstrap-icons', serve(`${pkgDir('bootstrap-icons')}/font`, '7d'));
   return app;
+}
+
+/** Short content hash of every file under dir: changes exactly when a deploy changes the UI. */
+function assetVersion(dir: string) {
+  const hash = createHash('sha256');
+  for (const f of readdirSync(dir, { recursive: true, withFileTypes: true }).filter((e) => e.isFile()).map((e) => join(e.parentPath, e.name)).sort()) hash.update(f.slice(dir.length)).update(readFileSync(f));
+  return hash.digest('hex').slice(0, 12);
 }

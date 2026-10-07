@@ -1,3 +1,4 @@
+import { live } from './live.js';
 import { api, userMap } from './api.js';
 import { $, h, clear, submit, toast, explain, withCid, fmtDateTime } from './dom.js';
 
@@ -6,14 +7,15 @@ const path = `/api/teams/${encodeURIComponent(teamId)}`;
 let team;
 
 async function loadTeam() {
+  const prev = team;
   team = await api('GET', path);
   document.title = `${team.code} · Team Management`;
   $('#page-title').textContent = `${team.code} · ${team.name}`;
   $('#team-code').textContent = team.code;
   $('#team-version').textContent = team.version;
   $('#team-status').replaceChildren(team.archivedAt ? h('span', { class: 'badge text-bg-secondary', text: `archived ${fmtDateTime(team.archivedAt)}` }) : h('span', { class: 'badge text-bg-success', text: 'active' }));
-  $('#team-name').value = team.name;
-  $('#team-desc').value = team.description;
+  if (!prev || $('#team-name').value === prev.name) $('#team-name').value = team.name; // a refresh never overwrites what the user is typing
+  if (!prev || $('#team-desc').value === prev.description) $('#team-desc').value = team.description;
   const archived = Boolean(team.archivedAt);
   for (const el of $('#edit-team').querySelectorAll('input,textarea,button')) el.disabled = archived;
   for (const el of $('#add-member').querySelectorAll('select,button')) el.disabled = archived;
@@ -82,3 +84,4 @@ $('#add-member').addEventListener('submit', async (ev) => {
   try { await loadTeam(); await Promise.all([loadMembers(), fillUserPicker(), loadProjects()]); }
   catch (e) { toast('danger', explain(e), withCid(e)); }
 })();
+live(() => Promise.all([loadTeam(), loadMembers(), fillUserPicker(), loadProjects()]), { everyMs: 15_000 });

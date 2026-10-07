@@ -1,3 +1,4 @@
+import { live } from './live.js';
 import { api, userMap } from './api.js';
 import { $, h, clear, toast, explain, withCid, avatar, statusBadge } from './dom.js';
 
@@ -63,12 +64,13 @@ async function load(reset = true) {
 }
 async function loadPage(reset) {
   const rows = $('#project-rows');
-  if (reset) { clear(rows); cursor = null; n = 0; }
+  if (reset) { cursor = null; n = 0; }
   const q = new URLSearchParams({ limit: 25, includeArchived: $('#include-archived').checked });
   if (cursor) q.set('cursor', cursor);
   try {
     if (!teams.size) for (const t of (await api('GET', '/api/teams?includeArchived=true&limit=100')).items) teams.set(t.id, t);
     const [page, users, me] = await Promise.all([api('GET', `/api/projects?${q}`), userMap(), api('GET', '/api/me')]);
+    if (reset) clear(rows); // cleared only once the data is here, so a refresh never flashes an empty table
     admin = me.role === 'ADMIN';
     for (const p of page.items) rows.append(row(p, users));
     if (!rows.children.length) rows.append(h('tr', {}, h('td', { colspan: 6, class: 'text-secondary p-3' }, 'No projects yet. ', h('a', { href: '/projects/new' }, 'Add the first project'), '.')));
@@ -79,3 +81,4 @@ async function loadPage(reset) {
 $('#include-archived').addEventListener('change', () => load());
 $('#more-projects').addEventListener('click', () => load(false));
 load();
+live(() => { if (!cursor) return load(); }, { everyMs: 15_000 }); // only while the list fits one page: never drop rows the user loaded with "Load more"

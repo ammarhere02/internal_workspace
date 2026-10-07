@@ -90,7 +90,7 @@ export class TeamsService {
 
   async addMember(ctx: RequestContext, teamId: string, dto: AddMemberDto): Promise<MembershipDoc> {
     const user = await this.identity.getActiveUser(ctx.workspaceId, dto.userId); // must exist in THIS workspace
-    return this.mongo.withTransaction(async (session) => {
+    try { return await this.mongo.withTransaction(async (session) => {
       const team = await this.repo.findById(ctx.workspaceId, teamId, session);
       if (!team) throw DomainError.notFound('team', teamId);
       if (team.archivedAt) throw DomainError.conflict('team_archived', `team ${team.code} is archived`);
@@ -100,7 +100,7 @@ export class TeamsService {
       const bumped = (await this.repo.updateVersioned(ctx.workspaceId, teamId, team.version, {}, session))!;
       await this.outbox.append(session, [this.event(ctx, bumped, 'team.member_added', { teamId, teamName: team.name, userId: user._id, userName: user.name, role: dto.role })]);
       return membership;
-    });
+    }); } finally { this.identity.forgetTeams(ctx.workspaceId, user._id); }
   }
 
   async changeRole(ctx: RequestContext, teamId: string, userId: string, dto: ChangeRoleDto) {
@@ -119,7 +119,7 @@ export class TeamsService {
   }
 
   async removeMember(ctx: RequestContext, teamId: string, userId: string) {
-    return this.mongo.withTransaction(async (session) => {
+    try { return await this.mongo.withTransaction(async (session) => {
       const team = await this.repo.findById(ctx.workspaceId, teamId, session);
       if (!team) throw DomainError.notFound('team', teamId);
       const m = await this.repo.membership(teamId, userId, session);
@@ -131,7 +131,7 @@ export class TeamsService {
       await this.repo.memberships.deleteOne({ _id: m._id }, { session });
       const bumped = (await this.repo.updateVersioned(ctx.workspaceId, teamId, team.version, {}, session))!;
       await this.outbox.append(session, [this.event(ctx, bumped, 'team.member_removed', { teamId, teamName: team.name, userId, userName: user.name })]);
-    });
+    }); } finally { this.identity.forgetTeams(ctx.workspaceId, userId); }
   }
 
   /** Used by Projects/Boards: is this user an active member of the team? */
