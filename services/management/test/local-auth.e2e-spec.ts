@@ -45,6 +45,12 @@ describe('register + login', () => {
     expect(me).toMatchObject({ email: EMAIL, role: 'EMPLOYEE', teamIds: [] });
     await http.post('/api/teams').set('authorization', `Bearer ${token}`).set(json).send({ name: 'X', code: 'XX' }).expect(403);
   });
+  it('/api/me tells the browser when the JWT session ends (drives the "session expiring/expired" UX)', async () => {
+    const me = (await http.get('/api/me').set('authorization', `Bearer ${token}`).expect(200)).body;
+    const left = Date.parse(me.sessionExpiresAt) - Date.now();
+    expect(left).toBeGreaterThan(7 * 3600_000); // 8 h token
+    expect(left).toBeLessThanOrEqual(8 * 3600_000);
+  });
   it('the cookie authenticates too', async () => {
     const login = await http.post('/auth/login').set(json).send({ email: EMAIL, password: PASSWORD }).expect(200);
     const cookie = login.headers['set-cookie']!.map((c: string) => c.split(';')[0]).join('; ');

@@ -11,6 +11,7 @@ export default defineConfig({
   plugins: [tsconfigPaths()],
   test: {
     globalSetup: ['./test/global-teardown.ts'],
+    setupFiles: ['./test/setup-workspace.ts'],
     globals: true,
     root: './',
     include: ['**/*.e2e-spec.ts'],

@@ -85,6 +85,20 @@ Rejection-condition audit (secrets, collection ownership, durable publish, ack-a
 
 Browser walkthrough (optional, needs Chromium via Playwright): `services/management/scripts/ui-walkthrough.mjs` drives every mandatory journey and failure path against the live stack; see its header.
 
+## Resetting demo data
+
+`services/management/scripts/prune-demo-data.mjs` removes generated demo/test data and keeps a curated set; `services/insights` has the matching `python -m app.prune`. Both are dry runs unless `--apply` is given, and the apply step writes a jsonl backup of every document it deletes.
+
+```bash
+docker compose stop management insights
+cd services/management && node scripts/prune-demo-data.mjs --keep-projects PAY,PH5,SH --out /tmp/prune            # dry run: counts only
+node scripts/prune-demo-data.mjs --keep-projects PAY,PH5,SH --out /tmp/prune --apply                              # backs up, then deletes
+cd ../insights && .venv/bin/python -m app.prune --keep /tmp/prune/keep.json --apply --backup /tmp/prune/backup    # projections of the same entities
+docker compose up -d management insights
+```
+
+The event stream keeps its events until retention (7 days, D-08), so a later full replay would recreate deleted entities; repair kept projects with `python -m app.replay --set _fix` then `--adopt <projectIds>` then `--drop`. Request tests now clean up after themselves: every test file gets its own workspace and `test/global-teardown.ts` removes only the run's workspaces.
+
 ## Rebuilding the projection (replay)
 
 ```bash
