@@ -8,6 +8,7 @@ import type { Env } from '../config/env.js';
 import { MongoService } from '../infra/mongo/mongo.module.js';
 import { IdentityService } from '../identity/identity.service.js';
 import { GoogleStrategy } from './google.strategy.js';
+import { policyFrom } from './session-policy.js';
 
 /**
  * AUTH_MODE=google: server-side sessions (cookie holds only a session id; the session, stored in
@@ -21,13 +22,15 @@ export function configureAuth(app: NestExpressApplication) {
   const mongo = app.get(MongoService);
   const identity = app.get(IdentityService);
   app.set('trust proxy', 1);
+  const policy = policyFrom(config);
   app.use(session({
     name: 'tm.sid',
     secret: config.get('SESSION_SECRET'),
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({ client: mongo.client, dbName: config.get('MANAGEMENT_DB_NAME'), collectionName: 'sessions', ttl: 8 * 3600, autoRemove: 'native' }),
-    cookie: { httpOnly: true, sameSite: 'lax', secure: config.get('GOOGLE_CALLBACK_URL').startsWith('https://'), maxAge: 8 * 3600 * 1000 },
+    rolling: true, // every response renews the cookie: the idle window slides while the user is active
+    store: MongoStore.create({ client: mongo.client, dbName: config.get('MANAGEMENT_DB_NAME'), collectionName: 'sessions', ttl: Math.ceil(policy.maxMs / 1000), autoRemove: 'native' }),
+    cookie: { httpOnly: true, sameSite: 'lax', secure: config.get('GOOGLE_CALLBACK_URL').startsWith('https://'), maxAge: policy.idleMs },
   }));
   passport.use(new GoogleStrategy(config, identity).strategy());
   passport.serializeUser((user, done) => done(null, (user as { _id: string })._id)); // session stores the id only

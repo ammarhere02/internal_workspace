@@ -3,7 +3,7 @@
  * Every error becomes an ApiError carrying the server envelope {code, message, details, correlationId},
  * so screens can explain 409/422/503 to the user and quote the correlation id.
  */
-import { showSessionExpired } from './session.js';
+import { noteSessionResponse, showSessionExpired } from './session.js';
 
 export class ApiError extends Error {
   constructor(status, body, correlationId) {
@@ -29,6 +29,7 @@ export async function api(method, path, body) {
   if (u) headers['x-dev-user'] = u;
   const res = await fetch(path, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) });
   const correlationId = res.headers.get('x-correlation-id') || '';
+  noteSessionResponse(res); // re-arms the expiry timers from x-session-expires
   if (res.status === 204) return null;
   let json = null;
   try { json = await res.json(); } catch { json = null; }

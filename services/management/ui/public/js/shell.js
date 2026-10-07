@@ -1,5 +1,5 @@
 import { api, devUser, userMap } from './api.js';
-import { $, h, clear, avatar, toast } from './dom.js';
+import { $, h, clear, avatar } from './dom.js';
 import { watchSession } from './session.js';
 
 /** Header: workspace label + dev identity switcher (x-dev-user). Sidebar: user panel + per-project links. */
@@ -12,7 +12,7 @@ async function init() {
     $('#actor-avatar').replaceWith(avatar(actor?.name ?? '?', 'avatar-lg'));
     $('#actor-role').replaceChildren(h('span', { class: `badge ${me.role === 'ADMIN' ? 'text-bg-primary' : 'text-bg-secondary'} me-1`, text: me.role }), actor?.email ?? '');
     document.body.dataset.role = me.role;
-    watchSession(me.sessionExpiresAt, (min) => toast('warning', `Your session expires in about ${min} minute${min === 1 ? '' : 's'}.`, 'Finish and save what you are doing; you will be asked to sign in again.'));
+    watchSession(me.sessionExpiresAt);
     if (me.role !== 'ADMIN') {
       $('#nav-home').href = '/my'; // an employee's home is My Work
       for (const el of document.querySelectorAll('[data-admin-only]')) el.hidden = true; // server enforces this too (403 forbidden)

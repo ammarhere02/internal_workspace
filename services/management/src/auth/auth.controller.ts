@@ -40,7 +40,11 @@ export class AuthController {
     if (this.config.get('AUTH_MODE') !== 'google') return res.redirect('/login?error=google_disabled');
     return passport.authenticate('google', { failureRedirect: '/login?error=google_failed' }, (err: unknown, user: UserDoc | false) => {
       if (err || !user) return res.redirect(`/login?error=${encodeURIComponent(errorCode(err))}`);
-      req.logIn(user, (e) => (e ? next(e) : res.redirect(landingFor(user))));
+      req.logIn(user, (e) => {
+        if (e) return next(e);
+        (req.session as unknown as { authAt?: number }).authAt = Date.now(); // start of the absolute-limit clock
+        res.redirect(landingFor(user));
+      });
     })(req, res, next);
   }
 

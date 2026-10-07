@@ -1,5 +1,5 @@
 import { Transform, plainToInstance } from 'class-transformer';
-import { IsBoolean, IsIn, IsInt, IsString, Min, MinLength, validateSync } from 'class-validator';
+import { IsBoolean, IsIn, IsInt, IsNumber, IsString, Min, MinLength, validateSync } from 'class-validator';
 
 /**
  * Every environment variable the service reads, validated once at startup.
@@ -30,6 +30,10 @@ export class Env {
   @IsString() SESSION_SECRET: string = '';
   /** Comma-separated emails that become ADMIN on sign-in; everyone else is EMPLOYEE. Seeded usr_admin is always ADMIN. */
   @IsString() ADMIN_EMAILS: string = '';
+  /** Inactivity timeout: the session ends after this many minutes without an authenticated request. */
+  @IsNumber() @Min(0.05) SESSION_IDLE_MINUTES: number = 30;
+  /** Absolute cap: a login never lives longer than this, however active the user is. */
+  @IsNumber() @Min(0.001) SESSION_MAX_HOURS: number = 8;
   /** Secret for e-mail/password JWTs; defaults to SESSION_SECRET. */
   @IsString() JWT_SECRET: string = '';
   @Transform(({ obj, key }) => { const v = obj[key]; return typeof v === 'string' ? ['true', '1', 'yes'].includes(v.toLowerCase()) : v ?? true; })

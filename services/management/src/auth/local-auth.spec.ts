@@ -41,7 +41,7 @@ describe('passwords', () => {
 
 describe('jwt', () => {
   it('round-trips claims and rejects tampering, wrong secret and junk', () => {
-    const t = signToken({ sub: 'usr_1', ws: 'ws_x', role: 'EMPLOYEE' }, 'secret-secret-secret');
+    const t = signToken({ sub: 'usr_1', ws: 'ws_x', role: 'EMPLOYEE' }, 'secret-secret-secret', { authAtMs: Date.now(), expMs: Date.now() + 8 * 3_600_000 });
     expect(verifyToken(t, 'secret-secret-secret')).toMatchObject({ sub: 'usr_1', ws: 'ws_x', role: 'EMPLOYEE' });
     expect(verifyToken(t, 'secret-secret-secret')!.exp).toBeGreaterThan(Date.now() / 1000); // expiry is exposed for the session-expired UX
     expect(verifyToken(t, 'other-secret-other')).toBeNull();

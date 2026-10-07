@@ -7,7 +7,8 @@ import { IdentityService } from '../identity/identity.service.js';
 import type { UserDoc } from '../identity/identity.types.js';
 import { landingFor } from './auth.controller.js';
 import { LoginDto, RegisterDto } from './dto/auth.dto.js';
-import { JWT_COOKIE, JWT_TTL_SECONDS, signToken } from './jwt.js';
+import { JWT_COOKIE, signToken } from './jwt.js';
+import { policyFrom, slideExpiry } from './session-policy.js';
 import { hashPassword, verifyPassword } from './password.js';
 import { RateLimiter } from './rate-limit.js';
 
@@ -27,9 +28,12 @@ export class LocalAuthController {
   private secret() { return this.config.get('JWT_SECRET') || this.config.get('SESSION_SECRET'); }
 
   private issue(res: Response, user: UserDoc) {
-    const token = signToken({ sub: user._id, ws: user.workspaceId, role: user.role }, this.secret());
-    res.cookie(JWT_COOKIE, token, { httpOnly: true, sameSite: 'lax', secure: this.config.get('GOOGLE_CALLBACK_URL').startsWith('https://'), maxAge: JWT_TTL_SECONDS * 1000, path: '/' });
-    return { token, tokenType: 'Bearer', expiresIn: JWT_TTL_SECONDS, user: { id: user._id, name: user.name, email: user.email, role: user.role }, landing: landingFor(user) };
+    const now = Date.now();
+    const expMs = slideExpiry(now, now, policyFrom(this.config));
+    const token = signToken({ sub: user._id, ws: user.workspaceId, role: user.role }, this.secret(), { authAtMs: now, expMs });
+    res.cookie(JWT_COOKIE, token, { httpOnly: true, sameSite: 'lax', secure: this.config.get('GOOGLE_CALLBACK_URL').startsWith('https://'), maxAge: expMs - now, path: '/' });
+    res.setHeader('x-session-expires', new Date(expMs).toISOString());
+    return { token, tokenType: 'Bearer', expiresIn: Math.floor((expMs - now) / 1000), sessionExpiresAt: new Date(expMs).toISOString(), user: { id: user._id, name: user.name, email: user.email, role: user.role }, landing: landingFor(user) };
   }
 
   private throttle(ip: string, email: string) {
