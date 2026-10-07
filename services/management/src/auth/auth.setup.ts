@@ -28,9 +28,8 @@ export function configureAuth(app: NestExpressApplication) {
     secret: config.get('SESSION_SECRET'),
     resave: false,
     saveUninitialized: false,
-    rolling: true, // every response renews the cookie: the idle window slides while the user is active
     store: MongoStore.create({ client: mongo.client, dbName: config.get('MANAGEMENT_DB_NAME'), collectionName: 'sessions', ttl: Math.ceil(policy.maxMs / 1000), autoRemove: 'native' }),
-    cookie: { httpOnly: true, sameSite: 'lax', secure: config.get('GOOGLE_CALLBACK_URL').startsWith('https://'), maxAge: policy.idleMs },
+    cookie: { httpOnly: true, sameSite: 'lax', secure: config.get('GOOGLE_CALLBACK_URL').startsWith('https://'), maxAge: policy.maxMs }, // idle is enforced server-side (lastActiveAt); the cookie lives up to the absolute limit
   }));
   passport.use(new GoogleStrategy(config, identity).strategy());
   passport.serializeUser((user, done) => done(null, (user as { _id: string })._id)); // session stores the id only

@@ -22,8 +22,10 @@ export const devUser = {
   set: (v) => { try { v ? localStorage.setItem(DEV_USER_KEY, v) : localStorage.removeItem(DEV_USER_KEY); } catch { /* storage blocked: header simply stays default */ } },
 };
 
-export async function api(method, path, body) {
+/** opts.passive = true marks a background poll: the server validates the session but does NOT slide the idle window. */
+export async function api(method, path, body, opts = {}) {
   const headers = { accept: 'application/json' };
+  if (opts.passive) headers['x-session-passive'] = '1';
   if (body !== undefined) headers['content-type'] = 'application/json';
   const u = devUser.get();
   if (u) headers['x-dev-user'] = u;

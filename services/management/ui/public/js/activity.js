@@ -30,7 +30,7 @@ $('#more-activity').addEventListener('click', async () => {
 
 runProjectionPage({
   projectId, active: 'activity',
-  query: () => api('GET', `/api/projects/${pid}/activity?limit=25`),
+  query: (o) => api('GET', `/api/projects/${pid}/activity?limit=25`, undefined, o),
   render: async ({ reply, state, project }) => {
     const notice = $('#activity-notice');
     notice.hidden = state.state === 'fresh';

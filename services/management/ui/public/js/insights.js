@@ -14,7 +14,7 @@ function bar(label, value, total) {
 
 runProjectionPage({
   projectId, active: 'insights',
-  query: () => api('GET', `/api/projects/${pid}/insights`),
+  query: (o) => api('GET', `/api/projects/${pid}/insights`, undefined, o),
   render: async ({ reply, state, board }) => {
     const notice = $('#insights-notice');
     notice.hidden = state.state === 'fresh';

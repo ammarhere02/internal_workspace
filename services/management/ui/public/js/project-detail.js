@@ -17,7 +17,7 @@ async function post(ev) {
 
 runProjectionPage({
   projectId, active: 'detail',
-  query: () => api('GET', `/api/projects/${pid}/activity?limit=5`),
+  query: (o) => api('GET', `/api/projects/${pid}/activity?limit=5`, undefined, o),
   render: async ({ reply, board, project }) => {
     const posts = clear($('#activity-posts'));
     for (const ev of reply?.items ?? []) posts.append(await post(ev));

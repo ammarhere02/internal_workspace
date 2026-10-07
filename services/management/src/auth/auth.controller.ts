@@ -42,7 +42,8 @@ export class AuthController {
       if (err || !user) return res.redirect(`/login?error=${encodeURIComponent(errorCode(err))}`);
       req.logIn(user, (e) => {
         if (e) return next(e);
-        (req.session as unknown as { authAt?: number }).authAt = Date.now(); // start of the absolute-limit clock
+        const sess = req.session as unknown as { authAt?: number; lastActiveAt?: number };
+        sess.authAt = sess.lastActiveAt = Date.now(); // start of the absolute-limit clock and of the idle window
         res.redirect(landingFor(user));
       });
     })(req, res, next);

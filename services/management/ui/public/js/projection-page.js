@@ -18,10 +18,10 @@ export async function runProjectionPage({ projectId, active, query, render, poll
   const authoritativeLatest = latestAuthoritative(project, board);
   let timer = null, lastGood = null;
 
-  async function refresh() {
+  async function refresh(background = false) {
     clearTimeout(timer);
     let reply = null, error = null;
-    try { reply = await query(); lastGood = reply; $('#fresh-last-query').textContent = `last query ok ${new Date().toLocaleTimeString()}`; }
+    try { reply = await query({ passive: background }); lastGood = reply; $('#fresh-last-query').textContent = `last query ok ${new Date().toLocaleTimeString()}`; }
     catch (e) { error = { detail: `${explain(e)} ${e.correlationId ? `(correlation id ${e.correlationId})` : ''}` }; $('#fresh-last-query').textContent = `last query failed ${new Date().toLocaleTimeString()}`; }
     const f = classify({ reply, error, authoritativeLatest });
     const badge = $('#fresh-badge');
@@ -30,10 +30,10 @@ export async function runProjectionPage({ projectId, active, query, render, poll
     $('#fresh-detail').textContent = f.detail + (f.state === 'unavailable' && lastGood ? ' Showing the last successful reply; it may be outdated.' : '');
     render({ reply: reply ?? lastGood, state: f, project, board });
     // keep polling until fresh: pending/stale catch up when the consumer folds the events, unavailable recovers when the responder is back
-    if (f.state !== 'fresh') timer = setTimeout(refresh, f.state === 'unavailable' ? pollMs * 2 : pollMs);
+    if (f.state !== 'fresh') timer = setTimeout(() => refresh(true), f.state === 'unavailable' ? pollMs * 2 : pollMs); // background polling must not keep an idle session alive
   }
-  $('#fresh-refresh').addEventListener('click', refresh);
-  await refresh();
+  $('#fresh-refresh').addEventListener('click', () => refresh(false));
+  await refresh(false);
   return { project, board };
 }
 

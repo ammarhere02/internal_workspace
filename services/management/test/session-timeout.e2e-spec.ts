@@ -31,6 +31,12 @@ beforeAll(async () => {
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
   app = moduleRef.createNestApplication<NestExpressApplication>({ bufferLogs: true });
   configureApp(app); configureWeb(app); configureAuth(app);
+  // test-only hook: create a real Passport session for an existing user, exactly what the Google callback does after sign-in
+  const { IdentityService } = await import('../src/identity/identity.service.js');
+  app.use('/__test_login', async (req: any, res: any) => {
+    const user = await app.get(IdentityService).findActive(String(req.query.uid));
+    req.logIn(user, () => { req.session.authAt = req.session.lastActiveAt = Date.now(); res.end('ok'); });
+  });
   await app.init();
   http = request(app.getHttpServer());
 }, 60_000);
@@ -75,4 +81,48 @@ describe('session timeout', () => {
     const res = await http.get('/api/me').set('cookie', cookie).expect(401);
     expect(res.body.error.code).toBe('invalid_token');
   }, 30_000);
+});
+
+describe('background polling must not keep a session alive', () => {
+  const email = () => `bg.${process.env.WORKSPACE_SLUG}@example.test`;
+
+  it('e-mail/password JWT: a passive call neither renews the cookie nor moves the expiry', async () => {
+    const reg = await http.post('/auth/register').set(json).send({ name: 'Passive Jwt', email: email(), password: 'correct horse battery' }).expect(201);
+    const cookie = cookieOf(reg);
+    await sleep(2500);
+    const passive = await http.get('/api/me').set('cookie', cookie).set('x-session-passive', '1').expect(200);
+    expect(passive.headers['set-cookie']).toBeUndefined(); // not re-issued
+    expect(Date.parse(passive.body.sessionExpiresAt)).toBeLessThanOrEqual(Date.parse(reg.body.sessionExpiresAt) + 1000); // not extended
+    const active = await http.get('/api/me').set('cookie', cookie).expect(200);
+    expect(expiry(active)).toBeGreaterThan(Date.parse(reg.body.sessionExpiresAt) + 1500); // real activity does slide it
+  }, 30_000);
+
+  it('Google/Passport session: real activity slides the idle window, passive polling does not, idle ends it, the cap ends it regardless', async () => {
+    const reg = await http.post('/auth/register').set(json).send({ name: 'Passive Session', email: `s.${email()}`, password: 'correct horse battery' }).expect(201);
+    const uid = reg.body.user.id as string;
+    const login = async () => { const r = await http.get(`/__test_login?uid=${uid}`); return (r.headers['set-cookie'] as unknown as string[]).map((c) => c.split(';')[0]).filter((c) => c.startsWith('tm.sid')).join('; '); };
+
+    // (a) only passive polls: the session ends after the idle window although the server is contacted every 2 s
+    let cookie = await login();
+    const polls: number[] = [];
+    for (let i = 0; i < 6; i++) { await sleep(2000); polls.push((await http.get('/api/me').set('cookie', cookie).set('x-session-passive', '1')).status); }
+    expect(polls[0]).toBe(200);
+    expect(polls.at(-1)).toBe(401); // 12 s of polling, idle window 6 s
+    const gone = await http.get('/api/me').set('cookie', cookie);
+    expect(gone.status).toBe(401); // the session was destroyed, a real call does not revive it
+
+    // (b) real activity every 2.5 s keeps it alive past one idle window, but never past the absolute cap (18 s)
+    const t0 = Date.now();
+    cookie = await login();
+    let status = 200, lastOk = 0;
+    while (status === 200 && Date.now() - t0 < 30_000) {
+      await sleep(2500);
+      const r = await http.get('/api/me').set('cookie', cookie);
+      status = r.status;
+      if (status === 200) { lastOk = Date.now() - t0; expect(expiry(r)).toBeLessThanOrEqual(t0 + 18_500); }
+    }
+    expect(status).toBe(401);
+    expect(lastOk).toBeGreaterThan(10_000);
+    expect(Date.now() - t0).toBeGreaterThanOrEqual(18_000);
+  }, 90_000);
 });

@@ -4,7 +4,7 @@ import type { NextFunction, Request, Response } from 'express';
 import type { RequestContext } from '../common/context.js';
 import { DomainError } from '../common/errors/domain-error.js';
 import { JWT_COOKIE, signToken, verifyToken } from '../auth/jwt.js';
-import { pastAbsoluteLimit, policyFrom, slideExpiry } from '../auth/session-policy.js';
+import { idleExpired, pastAbsoluteLimit, policyFrom, slideExpiry } from '../auth/session-policy.js';
 import type { Env } from '../config/env.js';
 import type { UserDoc } from './identity.types.js';
 import { IdentityService } from './identity.service.js';
@@ -33,7 +33,8 @@ export class IdentityMiddleware implements NestMiddleware {
     const authAtMs = (claims.at ?? Math.floor(now / 1000)) * 1000;
     if (pastAbsoluteLimit(authAtMs, now, policy)) throw new DomainError(401, 'invalid_token', 'the sign-in is too old; please sign in again');
     let expMs = (claims.exp ?? 0) * 1000;
-    if (!fromHeader) { // browser: slide the window
+    const passive = req.headers['x-session-passive'] === '1'; // background poll: validate only, do not extend the idle window
+    if (!fromHeader && !passive) { // browser: slide the window
       expMs = slideExpiry(authAtMs, now, policy);
       res.cookie(JWT_COOKIE, signToken({ sub: claims.sub, ws: claims.ws, role: user.role }, secret, { authAtMs, expMs }), { httpOnly: true, sameSite: 'lax', secure: this.config.get('GOOGLE_CALLBACK_URL').startsWith('https://'), maxAge: expMs - now, path: '/' });
     }
@@ -51,11 +52,13 @@ export class IdentityMiddleware implements NestMiddleware {
       // 1) Passport session (Google)  2) JWT from the Authorization header or the HttpOnly cookie  3) dev identity (dev mode only)
       let actor: UserDoc | null = req.user ?? (await this.fromJwt(req, res));
       if (req.user) {
-        const sess = (req as unknown as { session?: { authAt?: number; destroy(cb: () => void): void } }).session;
+        const sess = (req as unknown as { session?: { authAt?: number; lastActiveAt?: number; destroy(cb: () => void): void } }).session!;
         const policy = policyFrom(this.config), now = Date.now();
-        sess!.authAt ??= now;
-        if (pastAbsoluteLimit(sess!.authAt, now, policy)) { sess!.destroy(() => undefined); throw new DomainError(401, 'unauthenticated', 'the sign-in is too old; please sign in again'); }
-        this.markSession(req, res, slideExpiry(sess!.authAt, now, policy));
+        sess.authAt ??= now;
+        sess.lastActiveAt ??= now;
+        if (pastAbsoluteLimit(sess.authAt, now, policy) || idleExpired(sess.lastActiveAt, now, policy)) { sess.destroy(() => undefined); throw new DomainError(401, 'unauthenticated', 'the session has expired; please sign in again'); }
+        if (req.headers['x-session-passive'] !== '1') sess.lastActiveAt = now; // only real activity slides the idle window
+        this.markSession(req, res, slideExpiry(sess.authAt, sess.lastActiveAt, policy));
       }
       if (!actor) {
         if (this.config.get('AUTH_MODE') === 'google') throw new DomainError(401, 'unauthenticated', 'sign in to use the API');
@@ -78,6 +81,13 @@ export class PageAuthMiddleware implements NestMiddleware {
   constructor(private readonly config: ConfigService<Env, true>) {}
   use(req: Request & { user?: UserDoc }, res: Response, next: NextFunction) {
     if (this.config.get('AUTH_MODE') !== 'google') return next();
+    if (req.user) { // Google session: a page navigation is real activity, unless the idle window or the absolute limit already ended it
+      const sess = (req as unknown as { session?: { authAt?: number; lastActiveAt?: number; destroy(cb: () => void): void } }).session!;
+      const policy = policyFrom(this.config), now = Date.now();
+      sess.authAt ??= now; sess.lastActiveAt ??= now;
+      if (pastAbsoluteLimit(sess.authAt, now, policy) || idleExpired(sess.lastActiveAt, now, policy)) return sess.destroy(() => res.redirect('/login?error=session_expired'));
+      sess.lastActiveAt = now;
+    }
     const user = req.user ?? this.fromJwtCookie(req);
     if (!user) return res.redirect('/login');
     const path = (req.originalUrl || req.url).split('?')[0]!; // req.path is relative to the mount point inside Nest middleware ('/' for every page)
